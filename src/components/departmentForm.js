@@ -35,9 +35,10 @@ const DepartmentForm = (props) => (
                 handleChange,
                 handleBlur,
                 handleSubmit,
+                handleReset,
                 isSubmitting
             }) => (
-                    <form onSubmit={handleSubmit}>
+                    <form onSubmit={handleSubmit} onReset={handleReset}>
                         <div className="form-group">
                             <label htmlFor="deptId">Department ID</label>
                             <input
@@ -98,6 +99,9 @@ const DepartmentForm = (props) => (
                         <p />
                         <button type="submit" disabled={isSubmitting}>
                             {isSubmitting ? 'Submitting' : 'Submit'}
+                        </button>
+                        <button type="reset" disabled={isSubmitting} className={'button reset'}>
+                            Reset
                         </button>
                     </form>
                 )}

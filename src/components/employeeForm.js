@@ -6,10 +6,10 @@ import PropTypes from 'prop-types';
 // Dummy option for departments
 
 const options = [
-  { id: 0, name: "Please select..."},
-  { id: 4711, name: "Human Ressources"},
-  { id: 4712, name: "IT Department"},
-  { id: 4713, name: 'Marketing'}
+  { id: 0, name: "Please select..." },
+  { id: 4711, name: "Human Ressources" },
+  { id: 4712, name: "IT Department" },
+  { id: 4713, name: 'Marketing' }
 ];
 
 // Validation Schema of form components
@@ -45,9 +45,10 @@ const EmployeeForm = (props) => (
         handleChange,
         handleBlur,
         handleSubmit,
+        handleReset,
         isSubmitting
       }) => (
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} onReset={handleReset}>
             <div className="form-group">
               <label htmlFor="empId">Employee ID</label>
               <input
@@ -119,7 +120,7 @@ const EmployeeForm = (props) => (
                     : "text-input"
                 }>
                 {options.map((option) => (
-                  <option key={option.id } value={option.id}>{option.name}</option>
+                  <option key={option.id} value={option.id}>{option.name}</option>
                 ))}
               </select>
               <div className="input-feedback">
@@ -129,6 +130,9 @@ const EmployeeForm = (props) => (
             <p />
             <button type="submit" disabled={isSubmitting}>
               {isSubmitting ? 'Submitting' : 'Submit'}
+            </button>
+            <button type="reset" disabled={isSubmitting} className={'button reset'}>
+              Reset
             </button>
           </form>
         )}

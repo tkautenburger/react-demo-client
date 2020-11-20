@@ -111,3 +111,9 @@ button.outline {
   border: 1px solid #aaa;
   color: #555;
 }
+
+button.reset {
+  background-color: #eee;
+  border: none;
+  color: #555;
+}
