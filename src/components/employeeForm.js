@@ -3,14 +3,10 @@ import { Formik, ErrorMessage } from 'formik'
 import * as Yup from 'yup';
 import PropTypes from 'prop-types';
 
-// Dummy option for departments
+import {departments} from '../data.json'
 
-const options = [
-  { id: 0, name: "Please select..." },
-  { id: 4711, name: "Human Ressources" },
-  { id: 4712, name: "IT Department" },
-  { id: 4713, name: 'Marketing' }
-];
+// add the "please select" department to the list
+departments.push({"deptId": 0, "deptName": "Please select...", "deptDescription": ""})
 
 // Validation Schema of form components
 const EmployeeSchema = Yup.object().shape({
@@ -119,8 +115,10 @@ const EmployeeForm = (props) => (
                     ? "text-input error"
                     : "text-input"
                 }>
-                {options.map((option) => (
-                  <option key={option.id} value={option.id}>{option.name}</option>
+                {departments.map((department) => (
+                  <option key={department.deptId} value={department.deptId}>
+                    {department.deptName}
+                  </option>
                 ))}
               </select>
               <div className="input-feedback">

@@ -7,8 +7,10 @@ import {
 
 import './App.css';
 
-import DepartmentForm from './components/departmentForm';
-import EmployeeForm from './components/employeeForm';
+import DepartmentForm from './components/departmentForm'
+import EmployeeForm from './components/employeeForm'
+
+import {employees, departments} from './data.json'
 
 function App() {
   return (
@@ -33,13 +35,13 @@ function App() {
 
         <Switch>
           <Route path="/departments">
-            <DepartmentForm department={{ deptId: 4711, deptName: 'HR', deptDescription: 'Human Resources' }} />
+            <DepartmentForm department={departments[0]} />
           </Route>
           <Route path="/employees">
-            <EmployeeForm employee={{ empId: 101, lastName: 'Kautenburger', firstName: 'Thomas', deptId: 0 }} />
+            <EmployeeForm employee={employees[1]} />
           </Route>
         </Switch>
-        
+
       </div>
     </Router>
   );

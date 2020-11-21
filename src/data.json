@@ -1,0 +1,12 @@
+{
+  "departments": [
+    { "deptId": 4711, "deptName": "HR", "deptDescription": "Human Resources" },
+    { "deptId": 4712, "deptName": "IT", "deptDescription": "Information Technologies" },
+    { "deptId": 4713, "deptName": "Sales", "deptDescription": "Sales Department" }
+  ],
+  "employees": [
+    { "empId": 101, "lastName": "Kautenburger", "firstName": "Thomas", "deptId": 4711 },
+    { "empId": 102, "lastName": "Doe", "firstName": "John", "deptId": 4712 },
+    { "empId": 103, "lastName": "Mustermann", "firstName": "Marianne", "deptId": 4713 }
+  ]
+}
