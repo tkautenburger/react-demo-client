@@ -111,7 +111,7 @@ const EmployeeForm = (props) => (
                 onBlur={handleBlur}
                 value={values.deptId}
                 className={
-                  errors.deptDescription && touched.deptDescription
+                  errors.deptId && touched.deptId
                     ? "text-input error"
                     : "text-input"
                 }>
