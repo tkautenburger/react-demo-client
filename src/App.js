@@ -5,8 +5,6 @@ import {
   Link
 } from "react-router-dom";
 
-import './App.css';
-
 import DepartmentForm from './components/departmentForm'
 import EmployeeForm from './components/employeeForm'
 
