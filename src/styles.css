@@ -135,6 +135,11 @@ button.reset {
   color: #555;
 }
 
+main {
+  margin: 10px auto;
+  display: grid;
+}
+
 header {
   margin: 0;
   padding: 1rem;

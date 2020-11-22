@@ -4,12 +4,10 @@ import {
   Route,
   Link
 } from "react-router-dom";
-import {FaUserAlt, FaBuilding } from "react-icons/fa"
+import { FaUserAlt, FaBuilding } from "react-icons/fa"
 
-import DepartmentForm from './components/departmentForm'
-import EmployeeForm from './components/employeeForm'
-
-import {employees, departments} from './data.json'
+import DepartmentPage from './components/DepartmentPage'
+import EmployeePage from './components/EmployeePage'
 
 function App() {
   return (
@@ -36,10 +34,10 @@ function App() {
 
         <Switch>
           <Route path="/departments">
-            <DepartmentForm department={departments[0]} />
+            <DepartmentPage />
           </Route>
           <Route path="/employees">
-            <EmployeeForm employee={employees[1]} />
+            <EmployeePage />
           </Route>
         </Switch>
 
