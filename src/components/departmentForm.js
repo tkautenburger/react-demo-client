@@ -16,7 +16,7 @@ const DepartmentSchema = Yup.object().shape({
 });
 
 const DepartmentForm = (props) => (
-    <div>
+    <div className="app">
         <h1>Department Form</h1>
         <Formik
             initialValues={props.department}
