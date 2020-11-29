@@ -25,6 +25,7 @@ const EmployeeForm = (props) => (
   <div className="app">
     <h1>Employee Form</h1>
     <Formik
+      enableReinitialize
       initialValues={props.employee}
       validationSchema={EmployeeSchema}
       onSubmit={(values, { setSubmitting }) => {

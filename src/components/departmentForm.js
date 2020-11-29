@@ -15,11 +15,12 @@ const DepartmentSchema = Yup.object().shape({
         .max(250, 'Maximum length exceeded (250 chars')
 });
 
-const DepartmentForm = (props) => (
+const DepartmentForm = ({ department }) => (
     <div className="app">
         <h1>Department Form</h1>
         <Formik
-            initialValues={props.department}
+            enableReinitialize
+            initialValues={department}
             validationSchema={DepartmentSchema}
             onSubmit={(values, { setSubmitting }) => {
                 setTimeout(() => {
@@ -106,7 +107,7 @@ const DepartmentForm = (props) => (
                     </form>
                 )}
         </Formik>
-    </div>
+     </div>
 );
 
 // Use PropTypes to type-check property arguments for component

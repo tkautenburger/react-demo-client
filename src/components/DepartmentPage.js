@@ -1,12 +1,10 @@
-import React from "react";
-import DepartmentForm from './DepartmentForm'
-
-import {departments} from '../data.json'
+import React from "react"
+import DepartmentView from './DepartmentView'
 
 export default function DepartmentPage() {
   return (
     <main className="main">
-      <DepartmentForm department={ departments[0] } />
+      <DepartmentView />
     </main>
   );
 }

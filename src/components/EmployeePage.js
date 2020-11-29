@@ -1,12 +1,10 @@
 import React from "react";
-import EmployeeForm from './EmployeeForm'
-
-import {employees} from '../data.json'
+import EmployeeView from './EmployeeView'
 
 export default function EmployeePage() {
   return (
     <main className="main">
-      <EmployeeForm employee={ employees[0] } />
+      <EmployeeView />
     </main>
   );
 }

@@ -1,0 +1,4 @@
+{
+  "/employees/:empId" : "/employees?empId=:empId",
+  "/departments/:deptId" : "/departments?deptId=:deptId"
+}
