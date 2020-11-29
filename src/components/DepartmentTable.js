@@ -13,7 +13,7 @@ export default function DepartmentTable( {department, setDepartment} ) {
         data.length > 0 && setDepartment(data[0])
       })
       .catch(error => setError(error));
-  }, []);
+  }, [ setDepartment ]);
 
   // Data is loading...
   if (departments === null && error === null) {

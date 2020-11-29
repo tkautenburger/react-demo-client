@@ -13,7 +13,7 @@ export default function EmployeeTable({ employee, setEmployee }) {
         data.length > 0 && setEmployee(data[0])
       })
       .catch(error => setError(error));
-  }, []);
+  }, [ setEmployee ]);
 
   // Data is loading...
   if (employees === null && error === null) {
