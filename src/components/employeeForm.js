@@ -23,7 +23,7 @@ const EmployeeSchema = Yup.object().shape({
 
 const EmployeeForm = (props) => (
   <div className="app">
-    <h1>Employee Form</h1>
+    <h2>Employee Form</h2>
     <Formik
       enableReinitialize
       initialValues={props.employee}

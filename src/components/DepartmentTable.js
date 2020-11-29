@@ -40,6 +40,7 @@ export default function DepartmentTable( {department, setDepartment} ) {
 
   return (
     <div className="app">
+      <h2>Department List</h2>
       <select onChange={changeDepartment}>
         {departments.map(dept => (
           <option key={dept.deptId} value={dept.deptId}>{dept.deptId} - {dept.deptName}</option>
