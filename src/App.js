@@ -6,8 +6,8 @@ import {
 } from "react-router-dom";
 import { FaUserAlt, FaBuilding } from "react-icons/fa"
 
-import DepartmentPage from './components/DepartmentPage'
-import EmployeePage from './components/EmployeePage'
+import DepartmentPage from './components/department/DepartmentPage'
+import EmployeePage from './components/employee/EmployeePage'
 
 function App() {
   return (

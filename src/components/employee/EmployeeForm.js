@@ -3,7 +3,7 @@ import { Formik, ErrorMessage } from 'formik'
 import * as Yup from 'yup';
 import PropTypes from 'prop-types';
 
-import {departments} from '../data.json'
+import {departments} from '../../data.json'
 
 // add the "please select" department to the list
 departments.push({"deptId": 0, "deptName": "Please select...", "deptDescription": ""})
