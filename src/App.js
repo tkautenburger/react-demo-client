@@ -1,48 +1,13 @@
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-  Link
-} from "react-router-dom";
-import { FaUserAlt, FaBuilding } from "react-icons/fa"
+import { BrowserRouter } from "react-router-dom";
 
-import DepartmentPage from './components/department/DepartmentPage'
-import EmployeePage from './components/employee/EmployeePage'
+import { AuthProvider } from "./providers/authProvider";
+import { Routes } from "./routes/routes";
 
 function App() {
   return (
-    <Router>
-      <div >
-        <header>
-          <nav>
-            <ul>
-              <li>
-                <Link to="/employees" className="btn btn-header">
-                  <FaUserAlt />
-                  <span>Employees</span>
-                </Link>
-              </li>
-              <li>
-                <Link to="/departments" className="btn btn-header">
-                  <FaBuilding />
-                  <span>Departments</span>
-                </Link>
-              </li>
-            </ul>
-          </nav>
-        </header>
-
-        <Switch>
-          <Route path="/departments">
-            <DepartmentPage />
-          </Route>
-          <Route path="/employees">
-            <EmployeePage />
-          </Route>
-        </Switch>
-
-      </div>
-    </Router>
+    <AuthProvider>
+      <BrowserRouter children={Routes} basename={"/"} />
+    </AuthProvider>
   );
 }
 
