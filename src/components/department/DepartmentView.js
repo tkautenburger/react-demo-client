@@ -2,7 +2,7 @@ import React, { useReducer, Fragment } from "react"
 import DepartmentForm from './DepartmentForm'
 import DepartmentTable from './DepartmentTable'
 
-import reducer from "./DepartmentReducer";
+import reducer from "./reducer";
 
 // Initial state for the department list
 const initialState = {
@@ -22,9 +22,11 @@ export default function DepartmentView() {
   // first time. When the list is empty, unset the department entry
 
   if (state.selectedDepartment === -1 && state.departments.length > 0) {
-    state.department = state.departments[0];
-  }  else if (state.departments.length == 0)
+    state.selectedDepartment = 0;
+    state.department = state.departments[state.selectedDepartment];
+  }  else if (state.departments.length === 0) {
     state.department = null;
+  }
  
   return (
     <Fragment>

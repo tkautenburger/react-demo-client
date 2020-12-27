@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useEffect, useContext } from 'react';
 import { Formik, ErrorMessage } from 'formik'
-import * as Yup from 'yup';
-import PropTypes from 'prop-types';
+import { FaSpinner, FaExclamationCircle } from "react-icons/fa"
+import { AuthContext } from "../../providers/authProvider";
 
-import {departments} from '../../data.json'
+import * as Yup from 'yup';
+
+// this must be replaced with a real fetch for departments
+import { departments } from '../../data.json'
 
 // add the "please select" department to the list
 // departments.push({"deptId": 0, "name": "Please select...", "description": ""})
@@ -21,36 +24,102 @@ const EmployeeSchema = Yup.object().shape({
     .positive('Please select a department')
 });
 
-const EmployeeForm = (props) => (
-  <div className="app">
-    <h2>Employee Form</h2>
-    <Formik
-      enableReinitialize
-      initialValues={props.employee}
-      validationSchema={EmployeeSchema}
-      onSubmit={(values, { setSubmitting }) => {
-        // insert logic to PUT entry to backend service (useEffect)
-        // changed entry must be updated in the employees list
-        setTimeout(() => {
-          alert(JSON.stringify(values, null, 2));
+export default function EmployeeForm({ state, dispatch }) {
+  const { employee, isUpdating, isDeleting, error } = state;
+  const authContext = useContext(AuthContext);
+
+  // effect hook to update a employee entry
+  useEffect(() => {
+    if (isUpdating) {
+      // alert(JSON.stringify(department, null, 2));
+      if (authContext.isAuthenticated()) {
+        const url = process.env.REACT_APP_EMPLOYEE_SERVICE + '/' + employee.empId.toString();
+        fetch(url, {
+          method: 'PUT',
+          body: JSON.stringify(employee),
+          headers: {
+            'Content-type': 'application/json; charset=UTF-8',
+            'authorization': 'Bearer ' + authContext.getAccessToken()
+          }
+        }).then(resp => resp.json())
+          .then(data => {
+            dispatch({
+              type: "UPDATE_EMPLOYEE_SUCCESS",
+              payload: data
+            })
+          })
+          .catch(error => dispatch({
+            type: "EMPLOYEE_ERROR",
+            payload: error
+          }));
+      }
+    }
+  }, [isUpdating, authContext, dispatch])
+
+  // effect hook to delete an employee entry
+  useEffect(() => {
+    if (isDeleting) {
+      // alert(JSON.stringify(department, null, 2));
+      if (authContext.isAuthenticated()) {
+        const url = process.env.REACT_APP_EMPLOYEE_SERVICE + '/' + employee.empId.toString();
+        fetch(url, {
+          method: 'DELETE',
+          body: JSON.stringify(employee),
+          headers: {
+            'Content-type': 'application/json; charset=UTF-8',
+            'authorization': 'Bearer ' + authContext.getAccessToken()
+          }
+        }).then(resp => resp.json())
+          .then(data => {
+            dispatch({
+              type: "DELETE_EMPLOYEE_SUCCESS",
+              payload: employee.empId
+            })
+          })
+          .catch(error => dispatch({
+            type: "EMPLOYEE_ERROR",
+            payload: error
+          }));
+      }
+    }
+  }, [isDeleting, authContext, dispatch])
+
+  function deleteEmployee(e) {
+    dispatch({
+      type: "DELETE_EMPLOYEE",
+    });
+  }
+
+  return (
+    <div className="app">
+      <h2>Employee Form</h2>
+      <Formik
+        enableReinitialize
+        initialValues={employee}
+        validationSchema={EmployeeSchema}
+        onSubmit={(values, { setSubmitting }) => {
+          dispatch({
+            type: "UPDATE_EMPLOYEE",
+            payload: values
+          });
           setSubmitting(false);
-        }, 500);
-      }}
-    >
-      {({
-        values,
-        errors,
-        touched,
-        handleChange,
-        handleBlur,
-        handleSubmit,
-        handleReset,
-        isSubmitting
-      }) => (
+        }}
+      >
+        {({
+          values,
+          errors,
+          touched,
+          handleChange,
+          handleBlur,
+          handleSubmit,
+          handleReset,
+          isSubmitting
+        }) => (
           <form onSubmit={handleSubmit} onReset={handleReset}>
             <div className="form-group">
               <label htmlFor="empId">Employee ID</label>
               <input
+                readOnly
                 type="empId"
                 name="empId"
                 onChange={handleChange}
@@ -135,20 +204,27 @@ const EmployeeForm = (props) => (
             <button type="reset" disabled={isSubmitting} className={'button reset'}>
               Reset
             </button>
+            <button type="button" disabled={isSubmitting} onClick={deleteEmployee} className={'button delete'}>
+              Delete
+            </button>
           </form>
         )}
-    </Formik>
-  </div>
-);
-
-// Use PropTypes to type-check property arguments for component
-EmployeeForm.propTypes = {
-  employee: PropTypes.shape({
-    empId: PropTypes.number.isRequired,
-    lastname: PropTypes.string.isRequired,
-    firstname: PropTypes.string,
-    deptId: PropTypes.number.isRequired
-  })
+      </Formik>
+      { error &&
+        <div>
+          <FaExclamationCircle />&nbsp;{error.message}
+        </div>
+      }
+      { !error && isUpdating &&
+        <div>
+          <FaSpinner />&nbsp;Updating employee data...
+        </div>
+      }
+      { !error && isDeleting &&
+        <div>
+          <FaSpinner />&nbsp;Deleting employee data...
+        </div>
+      }
+    </div>
+  );
 }
-
-export default EmployeeForm;

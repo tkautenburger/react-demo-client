@@ -27,7 +27,7 @@ export default function EmployeeTable({ state, dispatch }) {
           })
         })
         .catch(error => dispatch({
-          type: "FETCH_EMPLOYEES_ERROR",
+          type: "MPLOYEES_ERROR",
           payload: error
         }));
     }
@@ -37,25 +37,28 @@ export default function EmployeeTable({ state, dispatch }) {
   if (error) {
     return (
       <div className="app">
-        <FaExclamationCircle className="icon-loading" />&nbsp;{error.message}
+        <FaExclamationCircle />&nbsp;{error.message}
       </div>
     );
   }
-  
+
   // Data is loading...
-  if (isLoading) {
+  if (!error && isLoading) {
     return (
       <div className="app">
-        <FaSpinner className="icon-loading" />&nbsp;Loading employee data...
+        <FaSpinner />&nbsp;Loading employee data...
       </div>
     );
   }
 
   function changeEmployee(e) {
     const empId = parseInt(e.target.value);
+    // Update the current selected employee in the state
+    const empl = employees.find(emp => emp.empId === empId);
+
     dispatch({
       type: "SET_EMPLOYEE",
-      payload: empId
+      payload: { empId, empl }
     });
   }
 

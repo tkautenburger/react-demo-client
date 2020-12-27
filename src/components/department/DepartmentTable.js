@@ -27,7 +27,7 @@ export default function DepartmentTable({ state, dispatch }) {
           })
         })
         .catch(error => dispatch({
-          type: "FETCH_DEPARTMENTS_ERROR",
+          type: "DEPARTMENTS_ERROR",
           payload: error
         }));
     }
@@ -37,16 +37,16 @@ export default function DepartmentTable({ state, dispatch }) {
   if (error) {
     return (
       <div className="app">
-        <FaExclamationCircle className="icon-loading" />&nbsp;{error.message}
+        <FaExclamationCircle/>&nbsp;{error.message}
       </div>
     );
   }
 
   // Data is loading... TODO: this needs to be an individual message
-  if (isLoading) {
+  if (!error && isLoading) {
     return (
       <div className="app">
-        <FaSpinner className="icon-loading" />&nbsp;Loading department data...
+        <FaSpinner/>&nbsp;Loading department data...
       </div>
     );
   }

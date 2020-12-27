@@ -42,7 +42,7 @@ export default function DepartmentForm({ state, dispatch }) {
                         })
                     })
                     .catch(error => dispatch({
-                        type: "UPDATE_DEPARTMENT_ERROR",
+                        type: "DEPARTMENT_ERROR",
                         payload: error
                     }));
             }
@@ -70,7 +70,7 @@ export default function DepartmentForm({ state, dispatch }) {
                         })
                     })
                     .catch(error => dispatch({
-                        type: "DELETE_DEPARTMENT_ERROR",
+                        type: "DEPARTMENT_ERROR",
                         payload: error
                     }));
             }
@@ -112,6 +112,7 @@ export default function DepartmentForm({ state, dispatch }) {
                         <div className="form-group">
                             <label htmlFor="deptId">Department ID</label>
                             <input
+                                readOnly
                                 type="deptId"
                                 name="deptId"
                                 onChange={handleChange}
@@ -173,7 +174,7 @@ export default function DepartmentForm({ state, dispatch }) {
                         <button type="reset" disabled={isSubmitting} className={'button reset'}>
                             Reset
                         </button>
-                        <button disabled={isSubmitting} onClick={deleteDepartment} className={'button delete'}>
+                        <button type="button" disabled={isSubmitting} onClick={deleteDepartment} className={'button delete'}>
                             Delete
                         </button>
                     </form>
