@@ -1,44 +1,113 @@
-import React from 'react';
+import React, { useEffect, useContext } from "react"
 import { Formik, ErrorMessage } from 'formik'
+import { FaSpinner, FaExclamationCircle } from "react-icons/fa"
+import { AuthContext } from "../../providers/authProvider";
+
 import * as Yup from 'yup';
-import PropTypes from 'prop-types';
 
 // Validation Schema of form components
 const DepartmentSchema = Yup.object().shape({
     deptId: Yup.number()
         .positive('Must be a positive number'),
-    deptName: Yup.string()
+    name: Yup.string()
         .required('Required')
         .max(50, 'Maximum length exceeded (50 chars'),
-    deptDescription: Yup.string()
+    description: Yup.string()
         .notRequired()
         .max(250, 'Maximum length exceeded (250 chars')
 });
 
-const DepartmentForm = ({ department }) => (
-    <div className="app">
-        <h2>Department Form</h2>
-        <Formik
-            enableReinitialize
-            initialValues={department}
-            validationSchema={DepartmentSchema}
-            onSubmit={(values, { setSubmitting }) => {
-                setTimeout(() => {
-                    alert(JSON.stringify(values, null, 2));
+export default function DepartmentForm({ state, dispatch }) {
+    const { department, isUpdating, isDeleting, error } = state;
+    const authContext = useContext(AuthContext);
+
+    // effect hook to update a department entry
+    useEffect(() => {
+        if (isUpdating) {
+            // alert(JSON.stringify(department, null, 2));
+            if (authContext.isAuthenticated()) {
+                const url = process.env.REACT_APP_DEPARTMENT_SERVICE + '/' + department.deptId.toString();
+                fetch(url, {
+                    method: 'PUT',
+                    body: JSON.stringify(department),
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                        'authorization': 'Bearer ' + authContext.getAccessToken()
+                    }
+                }).then(resp => resp.json())
+                    .then(data => {
+                        dispatch({
+                            type: "UPDATE_DEPARTMENT_SUCCESS",
+                            payload: data
+                        })
+                    })
+                    .catch(error => dispatch({
+                        type: "UPDATE_DEPARTMENT_ERROR",
+                        payload: error
+                    }));
+            }
+        }
+    }, [isUpdating, authContext, dispatch])
+
+    // effect hook to delete a department entry
+    useEffect(() => {
+        if (isDeleting) {
+            // alert(JSON.stringify(department, null, 2));
+            if (authContext.isAuthenticated()) {
+                const url = process.env.REACT_APP_DEPARTMENT_SERVICE + '/' + department.deptId.toString();
+                fetch(url, {
+                    method: 'DELETE',
+                    body: JSON.stringify(department),
+                    headers: {
+                        'Content-type': 'application/json; charset=UTF-8',
+                        'authorization': 'Bearer ' + authContext.getAccessToken()
+                    }
+                }).then(resp => resp.json())
+                    .then(data => {
+                        dispatch({
+                            type: "DELETE_DEPARTMENT_SUCCESS",
+                            payload: department.deptId
+                        })
+                    })
+                    .catch(error => dispatch({
+                        type: "DELETE_DEPARTMENT_ERROR",
+                        payload: error
+                    }));
+            }
+        }
+    }, [isDeleting, authContext, dispatch])
+
+    function deleteDepartment(e) {
+        dispatch({
+            type: "DELETE_DEPARTMENT",
+        });
+    }
+
+    return (
+        <div className="app">
+            <h2>Department Form</h2>
+            <Formik
+                enableReinitialize
+                initialValues={department}
+                validationSchema={DepartmentSchema}
+                onSubmit={(values, { setSubmitting }) => {
+                    dispatch({
+                        type: "UPDATE_DEPARTMENT",
+                        payload: values
+                    });
                     setSubmitting(false);
-                }, 500);
-            }}
-        >
-            {({
-                values,
-                errors,
-                touched,
-                handleChange,
-                handleBlur,
-                handleSubmit,
-                handleReset,
-                isSubmitting
-            }) => (
+                }}
+            >
+                {({
+                    values,
+                    errors,
+                    touched,
+                    handleChange,
+                    handleBlur,
+                    handleSubmit,
+                    handleReset,
+                    isSubmitting
+                }) => (
                     <form onSubmit={handleSubmit} onReset={handleReset}>
                         <div className="form-group">
                             <label htmlFor="deptId">Department ID</label>
@@ -60,41 +129,41 @@ const DepartmentForm = ({ department }) => (
                         </div>
                         <p />
                         <div className="form-group">
-                            <label htmlFor="deptName">Department Name</label>
+                            <label htmlFor="name">Department Name</label>
                             <input
-                                type="deptName"
-                                name="deptName"
+                                type="name"
+                                name="name"
                                 onChange={handleChange}
                                 onBlur={handleBlur}
-                                value={values.deptName}
+                                value={values.name}
                                 className={
-                                    errors.deptName && touched.deptName
+                                    errors.name && touched.name
                                         ? "text-input error"
                                         : "text-input"
                                 }
                             />
                             <div className="input-feedback">
-                                <ErrorMessage name="deptName" />
+                                <ErrorMessage name="name" />
                             </div>
                         </div>
                         <p />
                         <div className="form-group">
-                            <label htmlFor="deptDescription">Description</label>
+                            <label htmlFor="description">Description</label>
                             <textarea
                                 rows='2'
-                                type="deptDescription"
-                                name="deptDescription"
+                                type="description"
+                                name="description"
                                 onChange={handleChange}
                                 onBlur={handleBlur}
-                                value={values.deptDescription}
+                                value={values.description}
                                 className={
-                                    errors.deptDescription && touched.deptDescription
+                                    errors.description && touched.description
                                         ? "text-input error"
                                         : "text-input"
                                 }
                             />
                             <div className="input-feedback">
-                                <ErrorMessage name="deptDescription" />
+                                <ErrorMessage name="description" />
                             </div>
                         </div>
                         <p />
@@ -104,19 +173,27 @@ const DepartmentForm = ({ department }) => (
                         <button type="reset" disabled={isSubmitting} className={'button reset'}>
                             Reset
                         </button>
+                        <button disabled={isSubmitting} onClick={deleteDepartment} className={'button delete'}>
+                            Delete
+                        </button>
                     </form>
                 )}
-        </Formik>
-     </div>
-);
-
-// Use PropTypes to type-check property arguments for component
-DepartmentForm.propTypes = {
-    department: PropTypes.shape({
-        deptId: PropTypes.number.isRequired,
-        deptName: PropTypes.string.isRequired,
-        deptDescription: PropTypes.string
-    })
+            </Formik>
+            { error &&
+                <div>
+                    <FaExclamationCircle />&nbsp;{error.message}
+                </div>
+            }
+            { !error && isUpdating &&
+                <div>
+                    <FaSpinner />&nbsp;Updating department data...
+                </div>
+            }
+            { !error && isDeleting &&
+                <div>
+                    <FaSpinner />&nbsp;Deleting department data...
+                </div>
+            }
+        </div>
+    );
 }
-
-export default DepartmentForm;

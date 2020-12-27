@@ -135,6 +135,14 @@ button.reset {
   color: #555;
 }
 
+button.delete {
+  background-color: darkred;
+  border: none;
+  color: #eee;
+  float: right;
+  margin-left: 2rem;
+}
+
 main {
   margin: 10px auto;
   display: grid;

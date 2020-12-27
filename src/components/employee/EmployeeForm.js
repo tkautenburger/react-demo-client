@@ -6,16 +6,16 @@ import PropTypes from 'prop-types';
 import {departments} from '../../data.json'
 
 // add the "please select" department to the list
-departments.push({"deptId": 0, "deptName": "Please select...", "deptDescription": ""})
+// departments.push({"deptId": 0, "name": "Please select...", "description": ""})
 
 // Validation Schema of form components
 const EmployeeSchema = Yup.object().shape({
   empId: Yup.number()
     .positive('Must be a positive number'),
-  lastName: Yup.string()
+  lastname: Yup.string()
     .required('Required')
     .max(50, 'Maximum length exceeded (50 chars)'),
-  firstName: Yup.string()
+  firstname: Yup.string()
     .max(50, 'Maximum length exceeded (50 chars)'),
   deptId: Yup.number()
     .positive('Please select a department')
@@ -29,6 +29,8 @@ const EmployeeForm = (props) => (
       initialValues={props.employee}
       validationSchema={EmployeeSchema}
       onSubmit={(values, { setSubmitting }) => {
+        // insert logic to PUT entry to backend service (useEffect)
+        // changed entry must be updated in the employees list
         setTimeout(() => {
           alert(JSON.stringify(values, null, 2));
           setSubmitting(false);
@@ -66,40 +68,40 @@ const EmployeeForm = (props) => (
             </div>
             <p />
             <div className="form-group">
-              <label htmlFor="lastName">Lastname</label>
+              <label htmlFor="lastname">Lastname</label>
               <input
-                type="lastName"
-                name="lastName"
+                type="lastname"
+                name="lastname"
                 onChange={handleChange}
                 onBlur={handleBlur}
-                value={values.lastName}
+                value={values.lastname}
                 className={
-                  errors.lastName && touched.lastName
+                  errors.lastname && touched.lastname
                     ? "text-input error"
                     : "text-input"
                 }
               />
               <div className="input-feedback">
-                <ErrorMessage name="lastName" />
+                <ErrorMessage name="lastname" />
               </div>
             </div>
             <p />
             <div className="form-group">
-              <label htmlFor="firstName">Firstname</label>
+              <label htmlFor="firstname">Firstname</label>
               <input
-                type="firstName"
-                name="firstName"
+                type="firstname"
+                name="firstname"
                 onChange={handleChange}
                 onBlur={handleBlur}
-                value={values.firstName}
+                value={values.firstname}
                 className={
-                  errors.firstName && touched.firstName
+                  errors.firstname && touched.firstname
                     ? "text-input error"
                     : "text-input"
                 }
               />
               <div className="input-feedback">
-                <ErrorMessage name="firstName" />
+                <ErrorMessage name="firstname" />
               </div>
             </div>
             <p />
@@ -118,7 +120,7 @@ const EmployeeForm = (props) => (
                 }>
                 {departments.map((department) => (
                   <option key={department.deptId} value={department.deptId}>
-                    {department.deptName}
+                    {department.name}
                   </option>
                 ))}
               </select>
@@ -143,8 +145,8 @@ const EmployeeForm = (props) => (
 EmployeeForm.propTypes = {
   employee: PropTypes.shape({
     empId: PropTypes.number.isRequired,
-    lastName: PropTypes.string.isRequired,
-    firstName: PropTypes.string,
+    lastname: PropTypes.string.isRequired,
+    firstname: PropTypes.string,
     deptId: PropTypes.number.isRequired
   })
 }

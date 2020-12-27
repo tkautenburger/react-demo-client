@@ -2,30 +2,34 @@ import React, { useReducer, Fragment } from "react"
 import DepartmentForm from './DepartmentForm'
 import DepartmentTable from './DepartmentTable'
 
-import reducer from "./reducer";
+import reducer from "./DepartmentReducer";
 
 // Initial state for the department list
 const initialState = {
-  departments: [],
-  selectedDepartment: 0,
-  isLoading: true,
+  departments: [],         // the list of departments 
+  department: null,        // the current department object
+  selectedDepartment: -1,  // the index of the selected department
+  isLoading: true,         // data is currently loading
+  isUpdating: false,       // current department is currently updated
+  isDeleting: false,       // current department is currently deleted
   error: false
 }
 
 export default function DepartmentView() {
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  let department = null;
-  if (state.selectedDepartment === 0 && state.departments.length > 0) {
-    department = state.departments[0];
-  } else {  
-    department = state.departments.find(d => d.deptId === state.selectedDepartment);
-  }
+  // Get the first entry in the list when we load the data for the very
+  // first time. When the list is empty, unset the department entry
+
+  if (state.selectedDepartment === -1 && state.departments.length > 0) {
+    state.department = state.departments[0];
+  }  else if (state.departments.length == 0)
+    state.department = null;
+ 
   return (
     <Fragment>
-      <DepartmentTable state={state} dispatch={dispatch}/>
-      {department && 
-        <DepartmentForm department={department} /> }
+      <DepartmentTable state={state} dispatch={dispatch} />
+      { state.department && <DepartmentForm state={state} dispatch={dispatch} />}
     </Fragment>
   );
 }

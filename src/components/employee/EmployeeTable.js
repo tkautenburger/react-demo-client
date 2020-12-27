@@ -1,22 +1,49 @@
-import React, { useState, useEffect } from "react"
+import React, { useEffect, useContext } from "react"
 import { FaSpinner, FaExclamationCircle } from "react-icons/fa"
+import { AuthContext } from "../../providers/authProvider";
 
-export default function EmployeeTable({ employee, setEmployee }) {
-  const [employees, setEmployees] = useState(null);
-  const [error, setError] = useState(null);
+export default function EmployeeTable({ state, dispatch }) {
+  const { employees, isLoading, error } = state;
+  const authContext = useContext(AuthContext);
 
   useEffect(() => {
-    fetch("http://localhost:3001/employees")
-      .then(resp => resp.json())
-      .then(data => {
-        setEmployees(data);
-        data.length > 0 && setEmployee(data[0])
-      })
-      .catch(error => setError(error));
-  }, [ setEmployee ]);
+    // check if the user is authenticated before fetching the data
+    // use the current access token to authenticate with the  
+    // downstreamservice
+    if (authContext.isAuthenticated()) {
+      dispatch({ type: "FETCH_EMPLOYEES_REQUEST" });
 
+      fetch(process.env.REACT_APP_EMPLOYEE_SERVICE, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'applicaton/json',
+          'authorization': 'Bearer ' + authContext.getAccessToken()
+        }
+      }).then(resp => resp.json())
+        .then(data => {
+          dispatch({
+            type: "FETCH_EMPLOYEES_SUCCESS",
+            payload: data
+          })
+        })
+        .catch(error => dispatch({
+          type: "FETCH_EMPLOYEES_ERROR",
+          payload: error
+        }));
+    }
+  }, [authContext, dispatch]);
+
+  // Error while loading data
+  if (error) {
+    return (
+      <div className="app">
+        <FaExclamationCircle className="icon-loading" />&nbsp;{error.message}
+      </div>
+    );
+  }
+  
   // Data is loading...
-  if (employees === null && error === null) {
+  if (isLoading) {
     return (
       <div className="app">
         <FaSpinner className="icon-loading" />&nbsp;Loading employee data...
@@ -24,18 +51,12 @@ export default function EmployeeTable({ employee, setEmployee }) {
     );
   }
 
-  // Error while loading data
-  if (error !== null) {
-    return (
-      <div className="app">
-        <FaExclamationCircle className="icon-loading" />&nbsp;{error.message}
-      </div>
-    );
-  }
-
   function changeEmployee(e) {
-    const result = employees.filter(emp => emp.empId.toString() === e.target.value);
-    result.length > 0 && setEmployee(result[0]);
+    const empId = parseInt(e.target.value);
+    dispatch({
+      type: "SET_EMPLOYEE",
+      payload: empId
+    });
   }
 
   return (
@@ -43,7 +64,7 @@ export default function EmployeeTable({ employee, setEmployee }) {
       <h2>Employee List</h2>
       <select onChange={changeEmployee}>
         {employees.map(emp => (
-          <option key={emp.empId} value={emp.empId}>{emp.empId} - {emp.lastName}, {emp.firstName}</option>
+          <option key={emp.empId} value={emp.empId}>{emp.empId} - {emp.lastname}, {emp.firstname}</option>
         ))}
       </select>
     </div>

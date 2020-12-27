@@ -73,10 +73,30 @@ export default class AuthService {
         return (!!oidcStorage && !!oidcStorage.access_token)
     };
 
+    getUserData = () => {
+        this.UserManager.getUser()
+            .then((user) => {
+                console.log("got user", user);
+                return user;
+            })
+            .catch((err) => {
+                console.log(err);
+                return null;
+            });
+    };
+
     getUserProfile = () => {
         const oidcStorage = JSON.parse(sessionStorage.getItem(`oidc.user:${IDENTITY_CONFIG.authority}:${IDENTITY_CONFIG.client_id}`))
         if (!!oidcStorage && !!oidcStorage.access_token) {
             return oidcStorage.profile;
+        }
+        return null;
+    };
+
+    getAccessToken = () => {
+        const oidcStorage = JSON.parse(sessionStorage.getItem(`oidc.user:${IDENTITY_CONFIG.authority}:${IDENTITY_CONFIG.client_id}`))
+        if (!!oidcStorage && !!oidcStorage.access_token) {
+            return oidcStorage.access_token;
         }
         return null;
     };
@@ -90,6 +110,7 @@ export default class AuthService {
                 console.log(err);
             });
     };
+
     signinSilentCallback = () => {
         this.UserManager.signinSilentCallback();
     };

@@ -1,31 +1,25 @@
 export default function reducer (state, action) {
   switch (action.type) {
 
-    case "SET_DEPARTMENT":
+    case "UPDATE_DEPARTMENT":
       return {
         ...state,
-        selectedDepartment: action.payload
-      };
-
-    case "FETCH_DEPARTMENTS_REQUEST":
-      return {
-        ...state,
-        isLoading: true,
+        isUpdating: true,
         error: false,
-        departments: []
+        department: action.payload
       };
 
-    case "FETCH_DEPARTMENTS_SUCCESS":
+    case "UPDATE_DEPARTMENTS_SUCCESS":
       return {
         ...state,
-        isLoading: false,
-        departments: action.payload
+        isUpdating: false,
+        department: action.payload
       };
 
-    case "FETCH_DEPARTMENTS_ERROR":
+    case "UPDATE_DEPARTMENTS_ERROR":
       return {
         ...state,
-        isLoading: false,
+        isUpdating: false,
         error: action.payload
       };
 

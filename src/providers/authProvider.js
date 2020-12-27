@@ -1,9 +1,11 @@
 import React, {Component} from "react";
 import AuthService from "../services/authService";
 
-const AuthContext = React.createContext({
+export const AuthContext = React.createContext({
     signinRedirectCallback: () => ({}),
+    getUserData: () => ({}),
     getUserProfile: () => ({}),
+    getAccessToken: () => ({}),
     logout: () => ({}),
     signoutRedirectCallback: () => ({}),
     isAuthenticated: () => ({}),

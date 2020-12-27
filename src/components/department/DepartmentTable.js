@@ -1,27 +1,39 @@
-import React, { useEffect } from "react"
+import React, { useEffect, useContext } from "react"
 import { FaSpinner, FaExclamationCircle } from "react-icons/fa"
+import { AuthContext } from "../../providers/authProvider";
 
 export default function DepartmentTable({ state, dispatch }) {
   const { departments, isLoading, error } = state;
+  const authContext = useContext(AuthContext);
 
   useEffect(() => {
-    dispatch({ type: "FETCH_DEPARTMENTS_REQUEST" });
+    // check if the user is authenticated before fetching the data
+    // use the current access token to authenticate with the  
+    // downstreamservice
+    if (authContext.isAuthenticated()) {
+      dispatch({ type: "FETCH_DEPARTMENTS_REQUEST" });
 
-    fetch("http://localhost:3001/departments")
-      .then(resp => resp.json())
-      .then(data => {
-        dispatch({
-          type: "FETCH_DEPARTMENTS_SUCCESS",
-          payload: data
+      fetch(process.env.REACT_APP_DEPARTMENT_SERVICE, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'applicaton/json',
+          'authorization': 'Bearer ' + authContext.getAccessToken()
+        }
+      }).then(resp => resp.json())
+        .then(data => {
+          dispatch({
+            type: "FETCH_DEPARTMENTS_SUCCESS",
+            payload: data
+          })
         })
-      })
-      .catch(error => dispatch({
-        type: "FETCH_DEPARTMENTS_ERROR",
-        payload: error
-      }));
-  }, [dispatch]);
+        .catch(error => dispatch({
+          type: "FETCH_DEPARTMENTS_ERROR",
+          payload: error
+        }));
+    }
+  }, [authContext, dispatch]);
 
-  // Error while loading data...
+  // Error while loading data... TODO: this needs to be an individual message
   if (error) {
     return (
       <div className="app">
@@ -30,7 +42,7 @@ export default function DepartmentTable({ state, dispatch }) {
     );
   }
 
-  // Data is loading...
+  // Data is loading... TODO: this needs to be an individual message
   if (isLoading) {
     return (
       <div className="app">
@@ -41,9 +53,11 @@ export default function DepartmentTable({ state, dispatch }) {
 
   function changeDepartment(e) {
     const deptId = parseInt(e.target.value);
+    // Update the current selected department in the state
+    const dept = departments.find(d => d.deptId === deptId);
     dispatch({
       type: "SET_DEPARTMENT",
-      payload: deptId
+      payload: { deptId, dept }
     });
   }
 
@@ -52,7 +66,7 @@ export default function DepartmentTable({ state, dispatch }) {
       <h2>Department List</h2>
       <select onChange={changeDepartment}>
         {departments.map(dept => (
-          <option key={dept.deptId} value={dept.deptId}>{dept.deptId} - {dept.deptName}</option>
+          <option key={dept.deptId} value={dept.deptId}>{dept.deptId} - {dept.name}</option>
         ))}
       </select>
     </div>
