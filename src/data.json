@@ -34,12 +34,6 @@
       "lastname": "Mustermann",
       "firstname": "Marianne",
       "deptId": 4713
-    },
-    {
-      "deptId": 4714,
-      "name": "Something",
-      "desc": "Something",
-      "empId": 104
     }
   ]
 }

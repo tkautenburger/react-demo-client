@@ -111,6 +111,9 @@ button {
   color: #fff;
   cursor: pointer;
   outline: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   -webkit-appearance: none;
 }
 
@@ -200,6 +203,8 @@ a.btn {
 .btn-delete {
   background: var(--error);
   color: white;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn > svg:first-child {

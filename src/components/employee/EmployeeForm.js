@@ -1,6 +1,6 @@
 import React, { useEffect, useContext } from 'react';
 import { Formik, ErrorMessage } from 'formik'
-import { FaSpinner, FaExclamationCircle } from "react-icons/fa"
+import { FaSpinner, FaExclamationCircle, FaTrash, FaSave, FaUndo } from "react-icons/fa"
 import { AuthContext } from "../../providers/authProvider";
 
 import * as Yup from 'yup';
@@ -199,30 +199,31 @@ export default function EmployeeForm({ state, dispatch }) {
             </div>
             <p />
             <button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'Submitting' : 'Submit'}
+            <FaSave style={{marginRight: '0.5em'}}/>{isSubmitting ? 'Submitting' : 'Submit'}
             </button>
             <button type="reset" disabled={isSubmitting} className={'button reset'}>
-              Reset
+            <FaUndo style={{marginRight: '0.5em'}}/>Reset
             </button>
-            <button type="button" disabled={isSubmitting} onClick={deleteEmployee} className={'button delete'}>
-              Delete
+            <button type="button" disabled={isSubmitting}
+              onClick={deleteEmployee} className={'button delete'}>
+              <FaTrash style={{marginRight: '0.5em'}}/>Delete
             </button>
           </form>
         )}
       </Formik>
       { error &&
         <div>
-          <FaExclamationCircle />&nbsp;{error.message}
+          <FaExclamationCircle style={{marginRight: '1em'}} />{error.message}
         </div>
       }
       { !error && isUpdating &&
         <div>
-          <FaSpinner />&nbsp;Updating employee data...
+          <FaSpinner style={{marginRight: '1em'}} />Updating employee data...
         </div>
       }
       { !error && isDeleting &&
         <div>
-          <FaSpinner />&nbsp;Deleting employee data...
+          <FaSpinner style={{marginRight: '1em'}} />Deleting employee data...
         </div>
       }
     </div>
