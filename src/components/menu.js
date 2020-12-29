@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { FaUserAlt, FaBuilding } from "react-icons/fa"
+import { FaUserAlt, FaBuilding, FaUserCircle } from "react-icons/fa"
 import { FiLogOut } from "react-icons/fi"
 import { AuthConsumer } from "../providers/authProvider"
 
@@ -28,6 +28,18 @@ export const Menu = () => {
                 isAuthenticated() &&
                 <li>
                   <div className="user">Welcome, {getUserProfile().name}</div>
+                </li>
+              )}
+            </AuthConsumer>
+
+            <AuthConsumer>
+              {({ isAuthenticated }) => (
+                isAuthenticated() &&
+                <li>
+                  <Link to="/profile" className="btn btn-header">
+                    <FaUserCircle />
+                    <span>Profile</span>
+                  </Link>
                 </li>
               )}
             </AuthConsumer>

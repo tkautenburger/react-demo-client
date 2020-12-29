@@ -14,6 +14,26 @@
       "deptId": 4713,
       "name": "IT",
       "description": "Information Technology"
+    },
+    {
+      "deptId": 4715,
+      "name": "Accounting",
+      "description": "Accounting Department"
+    },
+    {
+      "deptId": 4714,
+      "name": "Marketing",
+      "description": "Online Marketing Department"
+    },
+    {
+      "deptId": 4717,
+      "name": "ITxxx",
+      "description": "sssss"
+    },
+    {
+      "deptId": 4716,
+      "name": "HRxxx",
+      "description": "dfsdfsdfdsf"
     }
   ],
   "employees": [

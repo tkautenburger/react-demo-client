@@ -9,6 +9,7 @@ import { SilentRenew } from "../components/auth/silentRenew";
 
 import { EmployeePage } from "../components/employee/EmployeePage";
 import { DepartmentPage } from "../components/department/DepartmentPage";
+import { ProfilePage } from "../components/profile/ProfilePage";
 import { Menu } from "../components/menu";
 
 // import {PublicPage} from "../components/publicPage"
@@ -23,6 +24,7 @@ export const Routes = (
 
     <PrivateRoute path="/departments" component={DepartmentPage} />
     <PrivateRoute path="/employees" component={EmployeePage} />
+    <PrivateRoute path="/profile" component={ProfilePage} />
 
     <Route path="/" component={Menu} />
 

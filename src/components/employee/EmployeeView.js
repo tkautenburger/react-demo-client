@@ -6,6 +6,7 @@ import reducer from "./reducer";
 // Initial state for the employee list
 const initialState = {
   employees: [],
+  departments: [], // department chooser to be displayed in employee dialog
   employee: null,
   selectedEmployee: -1,
   isLoading: true,

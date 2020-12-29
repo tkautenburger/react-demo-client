@@ -7,11 +7,13 @@ import reducer from "./reducer";
 // Initial state for the department list
 const initialState = {
   departments: [],         // the list of departments 
-  department: null,        // the current department object
+  department: {},        // the current department object
   selectedDepartment: -1,  // the index of the selected department
   isLoading: true,         // data is currently loading
   isUpdating: false,       // current department is currently updated
   isDeleting: false,       // current department is currently deleted
+  isAdding: false,         // new department is currently added
+  isAddSubmit: false,      // user submitted new department
   error: false
 }
 

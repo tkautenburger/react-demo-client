@@ -6,7 +6,7 @@ import { AuthContext } from "../../providers/authProvider";
 import * as Yup from 'yup';
 
 // this must be replaced with a real fetch for departments
-import { departments } from '../../data.json'
+// import { departments } from '../../data.json'
 
 // add the "please select" department to the list
 // departments.push({"deptId": 0, "name": "Please select...", "description": ""})
@@ -25,8 +25,36 @@ const EmployeeSchema = Yup.object().shape({
 });
 
 export default function EmployeeForm({ state, dispatch }) {
-  const { employee, isUpdating, isDeleting, error } = state;
+  const { employee, departments, isUpdating, isDeleting, error } = state;
   const authContext = useContext(AuthContext);
+
+  // effect hook to load the current department list
+  useEffect(() => {
+    // check if the user is authenticated before fetching the data
+    // use the current access token to authenticate with the  
+    // downstreamservice
+    if (authContext.isAuthenticated()) {
+      dispatch({ type: "FETCH_DEPTLIST_REQUEST" });
+
+      fetch(process.env.REACT_APP_DEPARTMENT_SERVICE, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'applicaton/json',
+          'authorization': 'Bearer ' + authContext.getAccessToken()
+        }
+      }).then(resp => resp.json())
+        .then(data => {
+          dispatch({
+            type: "FETCH_DEPTLIST_SUCCESS",
+            payload: data
+          })
+        })
+        .catch(error => dispatch({
+          type: "EMPLOYEES_ERROR",
+          payload: error
+        }));
+    }
+  }, [authContext, dispatch]);
 
   // effect hook to update a employee entry
   useEffect(() => {
@@ -187,9 +215,9 @@ export default function EmployeeForm({ state, dispatch }) {
                     ? "text-input error"
                     : "text-input"
                 }>
-                {departments.map((department) => (
+                {departments.sort((a,b) => a.deptId - b.deptId).map((department) => (
                   <option key={department.deptId} value={department.deptId}>
-                    {department.name}
+                    {department.deptId + ' - ' +department.name}
                   </option>
                 ))}
               </select>

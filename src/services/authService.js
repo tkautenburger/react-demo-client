@@ -28,13 +28,19 @@ export default class AuthService {
             console.log("access token expired");
             this.signinSilent();
         });
+
+        this.UserManager.events.addUserSignedOut(() => {
+            // this comes directly after login, probably because of the login_required warning
+            console.log("user signed out");
+            // this.logout();
+        });
     }
 
     signinRedirectCallback = () => {
         this.UserManager.signinRedirectCallback()
             .then((user) => {
                 // here we have the user object after successful login
-           })
+            })
             .catch((err) => {
                 console.log('signinRedirectCallback error: ', err);
             });
@@ -74,15 +80,11 @@ export default class AuthService {
     };
 
     getUserData = () => {
-        this.UserManager.getUser()
-            .then((user) => {
-                console.log("got user", user);
-                return user;
-            })
-            .catch((err) => {
-                console.log(err);
-                return null;
-            });
+        const oidcStorage = JSON.parse(sessionStorage.getItem(`oidc.user:${IDENTITY_CONFIG.authority}:${IDENTITY_CONFIG.client_id}`))
+        if (!!oidcStorage && !!oidcStorage.access_token) {
+            return oidcStorage;
+        }
+        return null;
     };
 
     getUserProfile = () => {
@@ -112,7 +114,10 @@ export default class AuthService {
     };
 
     signinSilentCallback = () => {
-        this.UserManager.signinSilentCallback();
+        this.UserManager.signinSilentCallback()
+            .catch((err) => {
+                console.log(err);
+            });
     };
 
     createSigninRequest = () => {

@@ -27,7 +27,7 @@ export default function EmployeeTable({ state, dispatch }) {
           })
         })
         .catch(error => dispatch({
-          type: "MPLOYEES_ERROR",
+          type: "EMPLOYEES_ERROR",
           payload: error
         }));
     }

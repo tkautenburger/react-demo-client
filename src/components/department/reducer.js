@@ -22,16 +22,7 @@ export default function reducer(state, action) {
       return {
         ...state,
         isLoading: false,
-        departments: action.payload
-      };
-
-    case "DEPARTMENTS_ERROR":
-      return {
-        ...state,
-        isLoading: false,
-        isUpdating: false,
-        isDeleting: false,
-        error: action.payload
+        departments: action.payload.sort((a, b) => a.deptId - b.deptId)
       };
 
     case "UPDATE_DEPARTMENT":
@@ -71,6 +62,55 @@ export default function reducer(state, action) {
         selectedDepartment: -1,
         department: null,
         departments: deptsAfterDelete
+      };
+
+    case "ADD_DEPARTMENT":
+      // user wants to add a new department. 
+      // clear current object in form
+      const emptyDept = { deptId: 0, name: "", description: ""};
+      // console.log("in ADD_DEPARTMENT");
+      return {
+        ...state,
+        isAdding: true,
+        department: emptyDept,
+        error: false
+      };
+
+    case "ADD_DEPARTMENT_SUBMIT":
+      // user submitted new department
+      // cast department id to integer value
+      const dept = { ...action.payload, deptId: parseInt(action.payload.deptId)};
+      // console.log("in ADD_DEPARTMENT_SUBMIT");
+      return {
+        ...state,
+        isAddSubmit: true,
+        department: dept,
+        error: false
+      };
+
+    case "ADD_DEPARTMENT_SUCCESS":
+      // after successful POST request: add the current department to the
+      // department list, set it as the current department and end activity
+      return {
+        ...state,
+        isAdding: false,
+        isAddSubmit: false,
+        selectedDepartment: action.payload.deptId,
+        department: action.payload,
+        departments: [...state.departments, action.payload].sort((a, b) => a.deptId - b.deptId)
+      };
+
+    case "DEPARTMENTS_ERROR":
+      // end all current activities and set the error message
+      // in the state
+      return {
+        ...state,
+        isLoading: false,
+        isUpdating: false,
+        isDeleting: false,
+        isAdding: false,
+        isAddSubmit: false,
+        error: action.payload
       };
 
     default:
