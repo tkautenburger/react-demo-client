@@ -7,7 +7,11 @@ export default function reducer(state, action) {
       return {
         ...state,
         selectedDepartment: action.payload.deptId,
-        department: action.payload.dept
+        department: action.payload.dept,
+        isUpdating: false,
+        isAdding: false,
+        isDeleting: false,
+        error: false
       };
 
     case "FETCH_DEPARTMENTS_REQUEST":
@@ -67,7 +71,7 @@ export default function reducer(state, action) {
     case "ADD_DEPARTMENT":
       // user wants to add a new department. 
       // clear current object in form
-      const emptyDept = { deptId: 0, name: "", description: ""};
+      const emptyDept = { deptId: 0, name: "", description: "" };
       // console.log("in ADD_DEPARTMENT");
       return {
         ...state,
@@ -76,15 +80,30 @@ export default function reducer(state, action) {
         error: false
       };
 
+    case "ADD_DEPARTMENT_CANCEL":
+      // user cancels add operation before submit
+      // console.log("in ADD_DEPARTMENT_CANCEL");
+      let deptSelected = state.departments.find(e => e.deptId === action.payload)
+      if (!deptSelected)
+        deptSelected = state.departments[0];
+      return {
+        ...state,
+        isAdding: false,
+        selectedDepartment: deptSelected.deptId,
+        department: deptSelected,
+        error: false
+      };
+
     case "ADD_DEPARTMENT_SUBMIT":
       // user submitted new department
       // cast department id to integer value
-      const dept = { ...action.payload, deptId: parseInt(action.payload.deptId)};
+      const dept = { ...action.payload, deptId: parseInt(action.payload.deptId) };
       // console.log("in ADD_DEPARTMENT_SUBMIT");
       return {
         ...state,
         isAddSubmit: true,
         department: dept,
+        selectedDepartment: dept.deptId,
         error: false
       };
 

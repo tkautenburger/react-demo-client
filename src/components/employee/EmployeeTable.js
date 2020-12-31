@@ -3,7 +3,7 @@ import { FaSpinner, FaExclamationCircle } from "react-icons/fa"
 import { AuthContext } from "../../providers/authProvider";
 
 export default function EmployeeTable({ state, dispatch }) {
-  const { employees, isLoading, error } = state;
+  const { employees, employee, isLoading, error } = state;
   const authContext = useContext(AuthContext);
 
   useEffect(() => {
@@ -19,28 +19,24 @@ export default function EmployeeTable({ state, dispatch }) {
           'Content-Type': 'applicaton/json',
           'authorization': 'Bearer ' + authContext.getAccessToken()
         }
-      }).then(resp => resp.json())
-        .then(data => {
-          dispatch({
-            type: "FETCH_EMPLOYEES_SUCCESS",
-            payload: data
-          })
+      }).then(resp => {
+        if (!resp.ok) {
+          console.log("Response status: ", resp.status, resp.statusText);
+          throw new Error(resp.status + ' - ' + resp.statusText);
+        }
+        return resp.json()
+      }).then(data => {
+        dispatch({
+          type: "FETCH_EMPLOYEES_SUCCESS",
+          payload: data
         })
+      })
         .catch(error => dispatch({
           type: "EMPLOYEES_ERROR",
           payload: error
         }));
     }
   }, [authContext, dispatch]);
-
-  // Error while loading data
-  if (error) {
-    return (
-      <div className="app">
-        <FaExclamationCircle />&nbsp;{error.message}
-      </div>
-    );
-  }
 
   // Data is loading...
   if (!error && isLoading) {
@@ -55,7 +51,6 @@ export default function EmployeeTable({ state, dispatch }) {
     const empId = parseInt(e.target.value);
     // Update the current selected employee in the state
     const empl = employees.find(emp => emp.empId === empId);
-
     dispatch({
       type: "SET_EMPLOYEE",
       payload: { empId, empl }
@@ -64,8 +59,13 @@ export default function EmployeeTable({ state, dispatch }) {
 
   return (
     <div className="app">
-      <h2>Employee List</h2>
-      <select onChange={changeEmployee}>
+      { error &&
+        <div>
+          <FaExclamationCircle style={{ marginRight: '1em' }} />{error.message}
+        </div>
+      }
+     <h2>Available Employees</h2>
+      <select onChange={changeEmployee} value={employee.empId}>
         {employees.map(emp => (
           <option key={emp.empId} value={emp.empId}>{emp.empId} - {emp.lastname}, {emp.firstname}</option>
         ))}

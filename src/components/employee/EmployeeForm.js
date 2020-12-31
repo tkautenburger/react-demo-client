@@ -1,7 +1,16 @@
-import React, { useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react'
 import { Formik, ErrorMessage } from 'formik'
-import { FaSpinner, FaExclamationCircle, FaTrash, FaSave, FaUndo } from "react-icons/fa"
-import { AuthContext } from "../../providers/authProvider";
+import {
+  FaSpinner,
+  FaExclamationCircle,
+  FaTrash,
+  FaSave,
+  FaUndo,
+  FaPlusCircle
+} from "react-icons/fa"
+import { MdCancel } from "react-icons/md"
+import { AuthContext } from "../../providers/authProvider"
+import { ConfirmDelete } from "../dialog/ConfirmDelete"
 
 import * as Yup from 'yup';
 
@@ -25,11 +34,15 @@ const EmployeeSchema = Yup.object().shape({
 });
 
 export default function EmployeeForm({ state, dispatch }) {
-  const { employee, departments, isUpdating, isDeleting, error } = state;
+  const { employee, selectedEmployee, departments, isUpdating, isDeleting, isAdding, isAddSubmit, error } = state;
   const authContext = useContext(AuthContext);
+
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmResult, setConfirmResult] = useState(false);
 
   // effect hook to load the current department list
   useEffect(() => {
+    let errorText;
     // check if the user is authenticated before fetching the data
     // use the current access token to authenticate with the  
     // downstreamservice
@@ -42,11 +55,22 @@ export default function EmployeeForm({ state, dispatch }) {
           'Content-Type': 'applicaton/json',
           'authorization': 'Bearer ' + authContext.getAccessToken()
         }
-      }).then(resp => resp.json())
+      }).then(resp => {
+        if (!resp.ok) {
+          if (!resp.statusText || resp.statusText === '') {
+             errorText = 'HTTP Error';
+          } else {
+             errorText = resp.statusText;
+          }
+          console.log("Response status: ", resp.status, errorText);
+          throw new Error(resp.status + ' - ' + errorText);
+        }
+        return resp.json()
+      })
         .then(data => {
           dispatch({
             type: "FETCH_DEPTLIST_SUCCESS",
-            payload: data
+            payload: [...data, { "deptId": 0, "name": "Please select...", "description": "" }]
           })
         })
         .catch(error => dispatch({
@@ -58,6 +82,7 @@ export default function EmployeeForm({ state, dispatch }) {
 
   // effect hook to update a employee entry
   useEffect(() => {
+    let errorText;
     if (isUpdating) {
       // alert(JSON.stringify(department, null, 2));
       if (authContext.isAuthenticated()) {
@@ -69,68 +94,167 @@ export default function EmployeeForm({ state, dispatch }) {
             'Content-type': 'application/json; charset=UTF-8',
             'authorization': 'Bearer ' + authContext.getAccessToken()
           }
-        }).then(resp => resp.json())
+        }).then(resp => {
+          if (!resp.ok) {
+            if (!resp.statusText || resp.statusText === '') {
+               errorText = 'HTTP Error';
+            } else {
+               errorText = resp.statusText;
+            }
+            console.log("Response status: ", resp.status, errorText);
+            throw new Error(resp.status + ' - ' + errorText);
+          }
+          return resp.json()
+        })
           .then(data => {
             dispatch({
               type: "UPDATE_EMPLOYEE_SUCCESS",
               payload: data
             })
           })
-          .catch(error => dispatch({
-            type: "EMPLOYEE_ERROR",
-            payload: error
-          }));
+          .catch(error => {
+            dispatch({
+              type: "EMPLOYEES_ERROR",
+              payload: error
+            })
+          });
       }
     }
   }, [isUpdating, authContext, dispatch])
 
   // effect hook to delete an employee entry
   useEffect(() => {
+    let errorText;
     if (isDeleting) {
       // alert(JSON.stringify(department, null, 2));
       if (authContext.isAuthenticated()) {
         const url = process.env.REACT_APP_EMPLOYEE_SERVICE + '/' + employee.empId.toString();
         fetch(url, {
           method: 'DELETE',
+          headers: {
+            'Content-Length': 0,
+            'authorization': 'Bearer ' + authContext.getAccessToken()
+          }
+        }).then(resp => {
+          if (!resp.ok) {
+            if (!resp.statusText || resp.statusText === '') {
+               errorText = 'HTTP Error';
+            } else {
+               errorText = resp.statusText;
+            }
+            console.log("Response status: ", resp.status, errorText);
+            throw new Error(resp.status + ' - ' + errorText);
+          }
+          dispatch({
+            type: "DELETE_EMPLOYEE_SUCCESS",
+            payload: employee.empId
+          })
+        }).catch(error => {
+          dispatch({
+            type: "EMPLOYEES_ERROR",
+            payload: error
+          })
+        });
+      }
+    }
+  }, [isDeleting, authContext, dispatch])
+
+  // effect hook to add a new employee entry
+  useEffect(() => {
+    let errorText;
+    if (isAddSubmit) {
+      // alert(JSON.stringify(employee, null, 2));
+      if (authContext.isAuthenticated()) {
+        const url = process.env.REACT_APP_EMPLOYEE_SERVICE;
+        fetch(url, {
+          method: 'POST',
           body: JSON.stringify(employee),
           headers: {
             'Content-type': 'application/json; charset=UTF-8',
             'authorization': 'Bearer ' + authContext.getAccessToken()
           }
-        }).then(resp => resp.json())
+        }).then(resp => {
+          if (!resp.ok) {
+            if (!resp.statusText || resp.statusText === '') {
+               errorText = 'HTTP Error';
+            } else {
+               errorText = resp.statusText;
+            }
+            console.log("Response status: ", resp.status, errorText);
+            throw new Error(resp.status + ' - ' + errorText);
+          }
+          return resp.json()
+        })
           .then(data => {
             dispatch({
-              type: "DELETE_EMPLOYEE_SUCCESS",
-              payload: employee.empId
+              type: "ADD_EMPLOYEE_SUCCESS",
+              payload: data
             })
           })
           .catch(error => dispatch({
-            type: "EMPLOYEE_ERROR",
+            type: "EMPLOYEES_ERROR",
             payload: error
           }));
       }
     }
-  }, [isDeleting, authContext, dispatch])
+  }, [isAddSubmit, authContext, dispatch])
+
+  useEffect(() => {
+    if (confirmResult) {
+      dispatch({
+        type: "DELETE_EMPLOYEE"
+      });
+      setConfirmResult(false);
+    }
+  }, [confirmResult])
 
   function deleteEmployee(e) {
+    setConfirmOpen(true);
+  }
+
+  function addEmployee(e) {
+    // this clears the fields in the form and
+    // enables the employee ID field for input
     dispatch({
-      type: "DELETE_EMPLOYEE",
+      type: "ADD_EMPLOYEE"
+    });
+  }
+
+  function cancelAdd(e) {
+    dispatch({
+      type: "ADD_EMPLOYEE_CANCEL",
+      payload: selectedEmployee
     });
   }
 
   return (
     <div className="app">
-      <h2>Employee Form</h2>
+      <button type="button" disabled={isAdding}
+        onClick={addEmployee}
+        className={'button add'}>
+        <FaPlusCircle style={{ marginRight: '0.5em' }} />Add
+      </button>
+      {isAdding && <h2>New Employee</h2>}
+      {!isAdding && <h2>Selected Employee</h2>}
       <Formik
         enableReinitialize
         initialValues={employee}
         validationSchema={EmployeeSchema}
         onSubmit={(values, { setSubmitting }) => {
-          dispatch({
-            type: "UPDATE_EMPLOYEE",
-            payload: values
-          });
-          setSubmitting(false);
+          if (isAdding) {
+            dispatch({
+              type: "ADD_EMPLOYEE_SUBMIT",
+              payload: values
+            });
+          } else {
+            dispatch({
+              type: "UPDATE_EMPLOYEE",
+              payload: values
+            });
+          }
+          setTimeout(() => {
+            setSubmitting(false);
+          }, 500);
         }}
       >
         {({
@@ -147,7 +271,7 @@ export default function EmployeeForm({ state, dispatch }) {
             <div className="form-group">
               <label htmlFor="empId">Employee ID</label>
               <input
-                readOnly
+                readOnly={!isAdding}
                 type="empId"
                 name="empId"
                 onChange={handleChange}
@@ -215,9 +339,9 @@ export default function EmployeeForm({ state, dispatch }) {
                     ? "text-input error"
                     : "text-input"
                 }>
-                {departments.sort((a,b) => a.deptId - b.deptId).map((department) => (
+                {departments.sort((a, b) => a.deptId - b.deptId).map((department) => (
                   <option key={department.deptId} value={department.deptId}>
-                    {department.deptId + ' - ' +department.name}
+                    {department.deptId + ' - ' + department.name}
                   </option>
                 ))}
               </select>
@@ -226,32 +350,55 @@ export default function EmployeeForm({ state, dispatch }) {
               </div>
             </div>
             <p />
-            <button type="submit" disabled={isSubmitting}>
-            <FaSave style={{marginRight: '0.5em'}}/>{isSubmitting ? 'Submitting' : 'Submit'}
+            <button type="submit" disabled={isUpdating || isSubmitting}>
+              <FaSave style={{ marginRight: '0.5em' }} />{isSubmitting ? 'Submitting' : 'Submit'}
             </button>
-            <button type="reset" disabled={isSubmitting} className={'button reset'}>
-            <FaUndo style={{marginRight: '0.5em'}}/>Reset
+            { !isAdding &&
+              <button type="reset" disabled={isUpdating || isSubmitting}
+                className={'button reset'}>
+                <FaUndo style={{ marginRight: '0.5em' }} />Reset
+              </button>
+            }
+            { isAdding &&
+              <button type="button"
+                onClick={cancelAdd}
+                className={'button cancel'}>
+                <MdCancel style={{ marginRight: '0.5em' }} />Cancel
+              </button>
+            }
+            <button type="button" disabled={isDeleting || isAdding}
+              onClick={deleteEmployee}
+              className={'button delete'}>
+              <FaTrash style={{ marginRight: '0.5em' }} />Delete
             </button>
-            <button type="button" disabled={isSubmitting}
-              onClick={deleteEmployee} className={'button delete'}>
-              <FaTrash style={{marginRight: '0.5em'}}/>Delete
-            </button>
+
           </form>
         )}
       </Formik>
+      <ConfirmDelete
+        title="Confirm Delete"
+        text="Do you really want to delete this employee?"
+        open={confirmOpen} setOpen={setConfirmOpen}
+        result={confirmResult} setResult={setConfirmResult}
+      />
       { error &&
         <div>
-          <FaExclamationCircle style={{marginRight: '1em'}} />{error.message}
+          <FaExclamationCircle style={{ marginRight: '1em' }} />{error.message}
         </div>
       }
       { !error && isUpdating &&
         <div>
-          <FaSpinner style={{marginRight: '1em'}} />Updating employee data...
+          <FaSpinner style={{ marginRight: '1em' }} />Updating employee data...
         </div>
       }
       { !error && isDeleting &&
         <div>
-          <FaSpinner style={{marginRight: '1em'}} />Deleting employee data...
+          <FaSpinner style={{ marginRight: '1em' }} />Deleting employee data...
+        </div>
+      }
+      { !error && isAddSubmit &&
+        <div>
+          <FaSpinner style={{ marginRight: '1em' }} />Adding employee data...
         </div>
       }
     </div>

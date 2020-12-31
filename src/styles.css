@@ -138,6 +138,14 @@ button.reset {
   color: #555;
 }
 
+button.cancel {
+  background-color: darkorange;
+  border: none;
+  color: #eee;
+  float: none;
+  margin-left: .5rem;
+}
+
 button.delete {
   background-color: darkred;
   border: none;

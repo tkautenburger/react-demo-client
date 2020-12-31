@@ -21,7 +21,8 @@ const ProfileSchema = Yup.object().shape({
     id_token: Yup.string()
         .required(),
     session_state: Yup.string()
-        .required()
+        .required(),
+    roles: Yup.array().of(Yup.string())
 });
 
 export default function ProfileForm({ state, dispatch }) {
@@ -31,9 +32,11 @@ export default function ProfileForm({ state, dispatch }) {
     useEffect(() => {
         if (authContext.isAuthenticated()) {
             const user = authContext.getUserData();
+            const accessToken = authContext.parseJwt(user.access_token);
+            console.log("Access Token\n" + JSON.stringify(accessToken, null, 2));
             dispatch({
                 type: "GET_USER",
-                payload: user
+                payload: { user, accessToken }
             })
         }
     }, [authContext, dispatch]);
@@ -43,7 +46,7 @@ export default function ProfileForm({ state, dispatch }) {
             <h2>User Profile</h2>
             <Formik
                 enableReinitialize
-                initialValues={ state }
+                initialValues={state}
                 validationSchema={ProfileSchema}
             >
                 {({
@@ -156,6 +159,15 @@ export default function ProfileForm({ state, dispatch }) {
                                 <ErrorMessage name="sub" />
                             </div>
                         </div>
+                        <p />
+
+                        <label >User Roles</label>
+                        <ul>
+                            {state.roles.map(role => (
+                                <li key={role}>{role}</li>
+                            ))}
+                        </ul>
+
                         <p />
                         <div className="form-group">
                             <label htmlFor="access_token">Access Token</label>

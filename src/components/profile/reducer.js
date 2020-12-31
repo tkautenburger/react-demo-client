@@ -4,14 +4,15 @@ export default function reducer(state, action) {
     case "GET_USER":
       return {
         ...state,
-        family_name: action.payload.profile.family_name,
-        given_name: action.payload.profile.given_name,
-        email: action.payload.profile.email,
-        preferred_username: action.payload.profile.preferred_username,
-        sub: action.payload.profile.sub,
-        access_token: action.payload.access_token,
-        id_token: action.payload.id_token,
-        session_state: action.payload.session_state
+        family_name: action.payload.user.profile.family_name,
+        given_name: action.payload.user.profile.given_name,
+        email: action.payload.user.profile.email,
+        preferred_username: action.payload.user.profile.preferred_username,
+        sub: action.payload.user.profile.sub,
+        access_token: action.payload.user.access_token,
+        id_token: action.payload.user.id_token,
+        session_state: action.payload.user.session_state,
+        roles: action.payload.accessToken.realm_access.roles
       };
 
     default:

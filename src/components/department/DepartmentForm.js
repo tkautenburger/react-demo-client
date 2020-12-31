@@ -1,7 +1,16 @@
-import React, { useEffect, useContext } from "react"
+import React, { useState, useEffect, useContext } from "react"
 import { Formik, ErrorMessage } from 'formik'
-import { FaSpinner, FaExclamationCircle, FaTrash, FaSave, FaUndo, FaPlusCircle } from "react-icons/fa"
-import { AuthContext } from "../../providers/authProvider";
+import {
+    FaSpinner,
+    FaExclamationCircle,
+    FaTrash,
+    FaSave,
+    FaUndo,
+    FaPlusCircle
+} from "react-icons/fa"
+import { MdCancel } from "react-icons/md"
+import { AuthContext } from "../../providers/authProvider"
+import { ConfirmDelete } from "../dialog/ConfirmDelete"
 
 import * as Yup from 'yup';
 
@@ -18,11 +27,15 @@ const DepartmentSchema = Yup.object().shape({
 });
 
 export default function DepartmentForm({ state, dispatch }) {
-    const { department, isUpdating, isDeleting, isAdding, isAddSubmit, error } = state;
+    const { department, selectedDepartment, isUpdating, isDeleting, isAdding, isAddSubmit, error } = state;
     const authContext = useContext(AuthContext);
+
+    const [confirmOpen, setConfirmOpen] = useState(false);
+    const [confirmResult, setConfirmResult] = useState(false);
 
     // effect hook to update a department entry
     useEffect(() => {
+        let errorText;
         if (isUpdating) {
             // alert(JSON.stringify(department, null, 2));
             if (authContext.isAuthenticated()) {
@@ -34,51 +47,68 @@ export default function DepartmentForm({ state, dispatch }) {
                         'Content-type': 'application/json; charset=UTF-8',
                         'authorization': 'Bearer ' + authContext.getAccessToken()
                     }
-                }).then(resp => resp.json())
-                    .then(data => {
-                        dispatch({
-                            type: "UPDATE_DEPARTMENT_SUCCESS",
-                            payload: data
-                        })
+                }).then(resp => {
+                    if (!resp.ok) {
+                        if (!resp.statusText || resp.statusText === '') {
+                            errorText = 'HTTP Error';
+                        } else {
+                            errorText = resp.statusText;
+                        }
+                        console.log("Response status: ", resp.status, errorText);
+                        throw new Error(resp.status + ' - ' + errorText);
+                    }
+                    return resp.json()
+                }).then(data => {
+                    dispatch({
+                        type: "UPDATE_DEPARTMENT_SUCCESS",
+                        payload: data
                     })
-                    .catch(error => dispatch({
-                        type: "DEPARTMENT_ERROR",
-                        payload: error
-                    }));
+                }).catch(error => dispatch({
+                    type: "DEPARTMENTS_ERROR",
+                    payload: error
+                }));
             }
         }
     }, [isUpdating, authContext, dispatch])
 
     // effect hook to delete a department entry
     useEffect(() => {
+        let errorText;
         if (isDeleting) {
             // alert(JSON.stringify(department, null, 2));
             if (authContext.isAuthenticated()) {
                 const url = process.env.REACT_APP_DEPARTMENT_SERVICE + '/' + department.deptId.toString();
                 fetch(url, {
                     method: 'DELETE',
-                    body: JSON.stringify(department),
                     headers: {
-                        'Content-type': 'application/json; charset=UTF-8',
+                        'Content-Length': '0',
                         'authorization': 'Bearer ' + authContext.getAccessToken()
                     }
-                }).then(resp => resp.json())
-                    .then(data => {
-                        dispatch({
-                            type: "DELETE_DEPARTMENT_SUCCESS",
-                            payload: department.deptId
-                        })
+                }).then(resp => {
+                    if (!resp.ok) {
+                        if (!resp.statusText || resp.statusText === '') {
+                             errorText = 'HTTP Error';
+                        } else {
+                             errorText = resp.statusText;
+                        }
+                        console.log("Response status: ", resp.status, errorText);
+                        throw new Error(resp.status + ' - ' + errorText);
+                    }
+                    dispatch({
+                        type: "DELETE_DEPARTMENT_SUCCESS",
+                        payload: department.deptId
                     })
-                    .catch(error => dispatch({
-                        type: "DEPARTMENT_ERROR",
-                        payload: error
-                    }));
+                }).catch(error => dispatch({
+                    type: "DEPARTMENTS_ERROR",
+                    payload: error
+                }));
             }
         }
     }, [isDeleting, authContext, dispatch])
 
     // effect hook to add a new department entry
     useEffect(() => {
+        let errorText;
         if (isAddSubmit) {
             // alert(JSON.stringify(department, null, 2));
             if (authContext.isAuthenticated()) {
@@ -90,26 +120,39 @@ export default function DepartmentForm({ state, dispatch }) {
                         'Content-type': 'application/json; charset=UTF-8',
                         'authorization': 'Bearer ' + authContext.getAccessToken()
                     }
-                }).then(resp => resp.json())
-                    .then(data => {
-                        dispatch({
-                            type: "ADD_DEPARTMENT_SUCCESS",
-                            payload: data
-                        })
+                }).then(resp => {
+                    if (!resp.ok) {
+                        if (!resp.statusText || resp.statusText === '') {
+                             errorText = 'HTTP Error';
+                        } else {
+                             errorText = resp.statusText;
+                        }
+                        console.log("Response status: ", resp.status, errorText);
+                        throw new Error(resp.status + ' - ' + errorText);
+                    }
+                    return resp.json()
+                }).then(data => {
+                    dispatch({
+                        type: "ADD_DEPARTMENT_SUCCESS",
+                        payload: data
                     })
+                })
                     .catch(error => dispatch({
-                        type: "DEPARTMENT_ERROR",
+                        type: "DEPARTMENTS_ERROR",
                         payload: error
                     }));
             }
         }
     }, [isAddSubmit, authContext, dispatch])
 
-    function deleteDepartment(e) {
-        dispatch({
-            type: "DELETE_DEPARTMENT"
-        });
-    }
+    useEffect(() => {
+        if (confirmResult) {
+            dispatch({
+                type: "DELETE_DEPARTMENT"
+            });
+            setConfirmResult(false);
+        }
+    }, [confirmResult])
 
     function addDepartment(e) {
         // this clears the fields in the form and
@@ -119,6 +162,17 @@ export default function DepartmentForm({ state, dispatch }) {
         });
     }
 
+    function cancelAdd(e) {
+        dispatch({
+            type: "ADD_DEPARTMENT_CANCEL",
+            payload: selectedDepartment
+        });
+    }
+
+    function deleteDepartment(e) {
+        setConfirmOpen(true);
+    }
+
     return (
         <div className="app">
             <button type="button" disabled={isAdding}
@@ -126,7 +180,8 @@ export default function DepartmentForm({ state, dispatch }) {
                 className={'button add'}>
                 <FaPlusCircle style={{ marginRight: '0.5em' }} />Add
             </button>
-            <h2>Department Form</h2>
+            {isAdding && <h2>New Department</h2>}
+            {!isAdding && <h2>Selected Department</h2>}
             <Formik
                 enableReinitialize
                 initialValues={department}
@@ -221,10 +276,19 @@ export default function DepartmentForm({ state, dispatch }) {
                         <button type="submit" disabled={isUpdating || isSubmitting}>
                             <FaSave style={{ marginRight: '0.5em' }} />{isSubmitting ? 'Submitting' : 'Submit'}
                         </button>
-                        <button type="reset" disabled={isUpdating || isSubmitting}
-                            className={'button reset'}>
-                            <FaUndo style={{ marginRight: '0.5em' }} />Reset
-                        </button>
+                        { !isAdding &&
+                            <button type="reset" disabled={isUpdating || isSubmitting}
+                                className={'button reset'}>
+                                <FaUndo style={{ marginRight: '0.5em' }} />Reset
+                            </button>
+                        }
+                        { isAdding &&
+                            <button type="button"
+                                onClick={cancelAdd}
+                                className={'button cancel'}>
+                                <MdCancel style={{ marginRight: '0.5em' }} />Cancel
+                            </button>
+                        }
                         <button type="button" disabled={isDeleting || isAdding}
                             onClick={deleteDepartment}
                             className={'button delete'}>
@@ -233,6 +297,12 @@ export default function DepartmentForm({ state, dispatch }) {
                     </form>
                 )}
             </Formik>
+            <ConfirmDelete
+                title="Confirm Delete"
+                text="Do you really want to delete this department?"
+                open={confirmOpen} setOpen={setConfirmOpen}
+                result={confirmResult} setResult={setConfirmResult}
+            />
             { error &&
                 <div>
                     <FaExclamationCircle style={{ marginRight: '1em' }} />{error.message}

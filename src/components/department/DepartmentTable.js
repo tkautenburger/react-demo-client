@@ -3,7 +3,7 @@ import { FaSpinner, FaExclamationCircle } from "react-icons/fa"
 import { AuthContext } from "../../providers/authProvider";
 
 export default function DepartmentTable({ state, dispatch }) {
-  const { departments, isLoading, error } = state;
+  const { departments, department, isLoading, error } = state;
   const authContext = useContext(AuthContext);
 
   useEffect(() => {
@@ -19,13 +19,18 @@ export default function DepartmentTable({ state, dispatch }) {
           'Content-Type': 'applicaton/json',
           'authorization': 'Bearer ' + authContext.getAccessToken()
         }
-      }).then(resp => resp.json())
-        .then(data => {
-          dispatch({
-            type: "FETCH_DEPARTMENTS_SUCCESS",
-            payload: data
-          })
+      }).then(resp => {
+        if (!resp.ok) {
+          console.log("Response status: ", resp.status, resp.statusText);
+          throw new Error(resp.status + ' - ' + resp.statusText);
+        }
+        return resp.json()
+      }).then(data => {
+        dispatch({
+          type: "FETCH_DEPARTMENTS_SUCCESS",
+          payload: data
         })
+      })
         .catch(error => dispatch({
           type: "DEPARTMENTS_ERROR",
           payload: error
@@ -33,20 +38,11 @@ export default function DepartmentTable({ state, dispatch }) {
     }
   }, [authContext, dispatch]);
 
-  // Error while loading data... TODO: this needs to be an individual message
-  if (error) {
-    return (
-      <div className="app">
-        <FaExclamationCircle/>&nbsp;{error.message}
-      </div>
-    );
-  }
-
   // Data is loading... TODO: this needs to be an individual message
   if (!error && isLoading) {
     return (
       <div className="app">
-        <FaSpinner/>&nbsp;Loading department data...
+        <FaSpinner />&nbsp;Loading department data...
       </div>
     );
   }
@@ -63,8 +59,13 @@ export default function DepartmentTable({ state, dispatch }) {
 
   return (
     <div className="app">
-      <h2>Department List</h2>
-      <select onChange={changeDepartment}>
+      { error &&
+        <div>
+          <FaExclamationCircle style={{ marginRight: '1em' }} />{error.message}
+        </div>
+      }
+      <h2>Available Departments</h2>
+      <select onChange={changeDepartment} value={department.deptId}>
         {departments.map(dept => (
           <option key={dept.deptId} value={dept.deptId}>{dept.deptId} - {dept.name}</option>
         ))}

@@ -24,16 +24,6 @@
       "deptId": 4714,
       "name": "Marketing",
       "description": "Online Marketing Department"
-    },
-    {
-      "deptId": 4717,
-      "name": "ITxxx",
-      "description": "sssss"
-    },
-    {
-      "deptId": 4716,
-      "name": "HRxxx",
-      "description": "dfsdfsdfdsf"
     }
   ],
   "employees": [
@@ -54,6 +44,12 @@
       "lastname": "Mustermann",
       "firstname": "Marianne",
       "deptId": 4713
+    },
+    {
+      "empId": 105,
+      "lastname": "Smith",
+      "firstname": "Jane",
+      "deptId": 4714
     }
   ]
 }

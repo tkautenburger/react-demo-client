@@ -4,6 +4,7 @@ import AuthService from "../services/authService";
 export const AuthContext = React.createContext({
     signinRedirectCallback: () => ({}),
     getUserData: () => ({}),
+    parseJwt: (token) => ({}),
     getUserProfile: () => ({}),
     getAccessToken: () => ({}),
     logout: () => ({}),

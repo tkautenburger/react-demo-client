@@ -12,7 +12,8 @@ const initialState = {
   sub: "",
   access_token: "", 
   id_token: "", 
-  session_state: ""
+  session_state: "",
+  roles: []
 }
 
 export default function ProfileView() {

@@ -7,11 +7,12 @@ import reducer from "./reducer";
 const initialState = {
   employees: [],
   departments: [], // department chooser to be displayed in employee dialog
-  employee: null,
+  employee: {},
   selectedEmployee: -1,
   isLoading: true,
   isUpdating: false,
   isDeleting: false,
+  isAddSubmit: false,
   error: false
 }
 

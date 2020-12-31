@@ -6,7 +6,10 @@ export default function reducer(state, action) {
         ...state,
         selectedEmployee: action.payload.empId,
         employee: action.payload.empl,
-        isUpdating: false
+        isUpdating: false,
+        isAdding: false,
+        isDeleting: false,
+        error: false
       };
 
     case "FETCH_EMPLOYEES_REQUEST":
@@ -41,15 +44,6 @@ export default function reducer(state, action) {
         isUpdating: false,
         isDeleting: false,
         departments: action.payload
-      };
-
-    case "EMPLOYEES_ERROR":
-      return {
-        ...state,
-        isLoading: false,
-        isUpdating: false,
-        isDeleting: false,
-        error: action.payload
       };
 
     case "UPDATE_EMPLOYEE":
@@ -89,6 +83,71 @@ export default function reducer(state, action) {
         selectedEmployee: -1,
         employee: null,
         employees: empsAfterDelete
+      };
+
+    case "ADD_EMPLOYEE":
+      // user wants to add a new employee. 
+      // clear current object in form
+      const emptyEmp = { empId: 0, lastname: "", firstname: "", deptId: 0 };
+      // console.log("in ADD_EMPLOYEE");
+      return {
+        ...state,
+        isAdding: true,
+        employee: emptyEmp,
+        error: false
+      };
+
+    case "ADD_EMPLOYEE_CANCEL":
+      // user cancels add operation before submit
+      // console.log("in ADD_EMPLOYEE_CANCEL");
+      let empSelected = state.employees.find(e => e.empId === action.payload)
+      if (!empSelected)
+        empSelected = state.employees[0];
+      return {
+        ...state,
+        isAdding: false,
+        selectedEmployee: empSelected.empId,
+        employee: empSelected,
+        error: false
+      };
+
+    case "ADD_EMPLOYEE_SUBMIT":
+      // user submitted new employee
+      // cast employee id and deptId to integer value
+      const emp = {
+        ...action.payload,
+        empId: parseInt(action.payload.empId),
+        deptId: parseInt(action.payload.deptId)
+      };
+      // console.log("in ADD_EMPLOYEE_SUBMIT");
+      return {
+        ...state,
+        isAddSubmit: true,
+        employee: emp,
+        selectedEmployee: emp.empId,
+        error: false
+      };
+
+    case "ADD_EMPLOYEE_SUCCESS":
+      // after successful POST request: add the current employee to the
+      // employee list, set it as the current employee and end activity
+      return {
+        ...state,
+        isAdding: false,
+        isAddSubmit: false,
+        selectedEmployee: action.payload.empId,
+        employee: action.payload,
+        employees: [...state.employees, action.payload].sort((a, b) => a.empId - b.empId)
+      };
+
+    case "EMPLOYEES_ERROR":
+      return {
+        ...state,
+        isLoading: false,
+        isUpdating: false,
+        isDeleting: false,
+        isAddSubmit: false,
+        error: action.payload
       };
 
     default:
