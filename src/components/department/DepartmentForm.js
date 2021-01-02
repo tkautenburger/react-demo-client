@@ -11,8 +11,9 @@ import {
 import { MdCancel } from "react-icons/md"
 import { AuthContext } from "../../providers/authProvider"
 import { ConfirmDelete } from "../dialog/ConfirmDelete"
+import { Popup } from "../popup/Snackbar.js"
 
-import * as Yup from 'yup';
+import * as Yup from 'yup'
 
 // Validation Schema of form components
 const DepartmentSchema = Yup.object().shape({
@@ -32,8 +33,9 @@ export default function DepartmentForm({ state, dispatch }) {
 
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [confirmResult, setConfirmResult] = useState(false);
+    const [popup, setPopup] = useState({ open: false, severity: "info", text: "", duration: 0 });
 
-    // effect hook to update a department entry
+    // effect hook to UPDATE a department entry
     useEffect(() => {
         let errorText;
         if (isUpdating) {
@@ -62,16 +64,21 @@ export default function DepartmentForm({ state, dispatch }) {
                     dispatch({
                         type: "UPDATE_DEPARTMENT_SUCCESS",
                         payload: data
+                    });
+                    setPopup({ open: true, severity: "success", text: "Department updated", duration: 3000 });
+                }).catch(error => {
+                    dispatch({
+                        type: "DEPARTMENTS_ERROR",
+                        payload: error
                     })
-                }).catch(error => dispatch({
-                    type: "DEPARTMENTS_ERROR",
-                    payload: error
-                }));
+                    setPopup({ open: true, severity: "error", text: "Error while updating", duration: 3000 });
+
+                });
             }
         }
     }, [isUpdating, authContext, dispatch])
 
-    // effect hook to delete a department entry
+    // effect hook to DELETE a department entry
     useEffect(() => {
         let errorText;
         if (isDeleting) {
@@ -87,9 +94,9 @@ export default function DepartmentForm({ state, dispatch }) {
                 }).then(resp => {
                     if (!resp.ok) {
                         if (!resp.statusText || resp.statusText === '') {
-                             errorText = 'HTTP Error';
+                            errorText = 'HTTP Error';
                         } else {
-                             errorText = resp.statusText;
+                            errorText = resp.statusText;
                         }
                         console.log("Response status: ", resp.status, errorText);
                         throw new Error(resp.status + ' - ' + errorText);
@@ -98,15 +105,19 @@ export default function DepartmentForm({ state, dispatch }) {
                         type: "DELETE_DEPARTMENT_SUCCESS",
                         payload: department.deptId
                     })
-                }).catch(error => dispatch({
-                    type: "DEPARTMENTS_ERROR",
-                    payload: error
-                }));
+                    setPopup({ open: true, severity: "success", text: "Department deleted", duration: 3000 });
+                }).catch(error => {
+                    dispatch({
+                        type: "DEPARTMENTS_ERROR",
+                        payload: error
+                    })
+                    setPopup({ open: true, severity: "error", text: "Error while deleting", duration: 3000 });
+                });
             }
         }
     }, [isDeleting, authContext, dispatch])
 
-    // effect hook to add a new department entry
+    // effect hook to POST a new department entry
     useEffect(() => {
         let errorText;
         if (isAddSubmit) {
@@ -123,9 +134,9 @@ export default function DepartmentForm({ state, dispatch }) {
                 }).then(resp => {
                     if (!resp.ok) {
                         if (!resp.statusText || resp.statusText === '') {
-                             errorText = 'HTTP Error';
+                            errorText = 'HTTP Error';
                         } else {
-                             errorText = resp.statusText;
+                            errorText = resp.statusText;
                         }
                         console.log("Response status: ", resp.status, errorText);
                         throw new Error(resp.status + ' - ' + errorText);
@@ -136,11 +147,14 @@ export default function DepartmentForm({ state, dispatch }) {
                         type: "ADD_DEPARTMENT_SUCCESS",
                         payload: data
                     })
-                })
-                    .catch(error => dispatch({
+                    setPopup({ open: true, severity: "success", text: "Department added", duration: 3000 });
+                }).catch(error => {
+                    dispatch({
                         type: "DEPARTMENTS_ERROR",
                         payload: error
-                    }));
+                    })
+                    setPopup({ open: true, severity: "error", text: "Error while adding", duration: 3000 });
+                });
             }
         }
     }, [isAddSubmit, authContext, dispatch])
@@ -167,6 +181,8 @@ export default function DepartmentForm({ state, dispatch }) {
             type: "ADD_DEPARTMENT_CANCEL",
             payload: selectedDepartment
         });
+        setPopup({ open: true, severity: "warning", text: "Operation canceled", duration: 3000 });
+
     }
 
     function deleteDepartment(e) {
@@ -297,6 +313,8 @@ export default function DepartmentForm({ state, dispatch }) {
                     </form>
                 )}
             </Formik>
+            <Popup
+                settings={popup} close={setPopup} />
             <ConfirmDelete
                 title="Confirm Delete"
                 text="Do you really want to delete this department?"

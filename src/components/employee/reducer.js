@@ -1,3 +1,7 @@
+/*********************************
+ * Employee Domain Reducer
+ *********************************/
+
 export default function reducer(state, action) {
   switch (action.type) {
 
@@ -101,8 +105,12 @@ export default function reducer(state, action) {
       // user cancels add operation before submit
       // console.log("in ADD_EMPLOYEE_CANCEL");
       let empSelected = state.employees.find(e => e.empId === action.payload)
-      if (!empSelected)
-        empSelected = state.employees[0];
+      if (!empSelected) {
+        if (state.employees.length > 0)
+          empSelected = state.employees[0];
+        else
+          empSelected = { empId: 0, lastname: "", firstname: "", deptId: 0 };
+      }
       return {
         ...state,
         isAdding: false,

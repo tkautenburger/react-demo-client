@@ -1,3 +1,7 @@
+/*********************************
+ * User Profile Domain Reducer
+ *********************************/
+
 export default function reducer(state, action) {
   switch (action.type) {
 

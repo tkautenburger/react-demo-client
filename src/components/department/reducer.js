@@ -1,3 +1,7 @@
+/*********************************
+ * Department Domain Reducer
+ *********************************/
+
 export default function reducer(state, action) {
   switch (action.type) {
 
@@ -85,7 +89,12 @@ export default function reducer(state, action) {
       // console.log("in ADD_DEPARTMENT_CANCEL");
       let deptSelected = state.departments.find(e => e.deptId === action.payload)
       if (!deptSelected)
-        deptSelected = state.departments[0];
+        if (state.departments.length > 0) {
+          deptSelected = state.departments[0];
+        }
+        else {
+          deptSelected = { deptId: 0, name: "", description: "" };
+        }
       return {
         ...state,
         isAdding: false,

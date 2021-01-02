@@ -11,6 +11,7 @@ import {
 import { MdCancel } from "react-icons/md"
 import { AuthContext } from "../../providers/authProvider"
 import { ConfirmDelete } from "../dialog/ConfirmDelete"
+import { Popup } from "../popup/Snackbar.js"
 
 import * as Yup from 'yup';
 
@@ -39,6 +40,7 @@ export default function EmployeeForm({ state, dispatch }) {
 
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmResult, setConfirmResult] = useState(false);
+  const [popup, setPopup] = useState({ open: false, severity: "info", text: "", duration: 0 });
 
   // effect hook to load the current department list
   useEffect(() => {
@@ -111,12 +113,14 @@ export default function EmployeeForm({ state, dispatch }) {
               type: "UPDATE_EMPLOYEE_SUCCESS",
               payload: data
             })
+            setPopup({ open: true, severity: "success", text: "Employee updated", duration: 3000 });
           })
           .catch(error => {
             dispatch({
               type: "EMPLOYEES_ERROR",
               payload: error
             })
+            setPopup({ open: true, severity: "error", text: "Error while updating", duration: 3000 });
           });
       }
     }
@@ -149,11 +153,13 @@ export default function EmployeeForm({ state, dispatch }) {
             type: "DELETE_EMPLOYEE_SUCCESS",
             payload: employee.empId
           })
+          setPopup({ open: true, severity: "success", text: "Employee deleted", duration: 3000 });
         }).catch(error => {
           dispatch({
             type: "EMPLOYEES_ERROR",
             payload: error
           })
+          setPopup({ open: true, severity: "error", text: "Error while deleting", duration: 3000 });
         });
       }
     }
@@ -190,11 +196,14 @@ export default function EmployeeForm({ state, dispatch }) {
               type: "ADD_EMPLOYEE_SUCCESS",
               payload: data
             })
+            setPopup({ open: true, severity: "success", text: "Employee added", duration: 3000 });
           })
-          .catch(error => dispatch({
+          .catch(error => {dispatch({
             type: "EMPLOYEES_ERROR",
             payload: error
-          }));
+          })
+          setPopup({ open: true, severity: "error", text: "Error while adding", duration: 3000 });
+        });
       }
     }
   }, [isAddSubmit, authContext, dispatch])
@@ -225,6 +234,8 @@ export default function EmployeeForm({ state, dispatch }) {
       type: "ADD_EMPLOYEE_CANCEL",
       payload: selectedEmployee
     });
+    setPopup({ open: true, severity: "warning", text: "Operation canceled", duration: 3000 });
+ 
   }
 
   return (
@@ -375,6 +386,8 @@ export default function EmployeeForm({ state, dispatch }) {
           </form>
         )}
       </Formik>
+      <Popup
+         settings={popup} close={setPopup} />
       <ConfirmDelete
         title="Confirm Delete"
         text="Do you really want to delete this employee?"
