@@ -30,6 +30,7 @@ const DepartmentSchema = Yup.object().shape({
 export default function DepartmentForm({ state, dispatch }) {
     const { department, selectedDepartment, isUpdating, isDeleting, isAdding, isAddSubmit, error } = state;
     const authContext = useContext(AuthContext);
+    const userRoles = authContext.parseJwt(authContext.getAccessToken()).realm_access.roles;
 
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [confirmResult, setConfirmResult] = useState(false);
@@ -189,13 +190,19 @@ export default function DepartmentForm({ state, dispatch }) {
         setConfirmOpen(true);
     }
 
+    function isAdmin() {
+        return userRoles.includes("admin")
+    }
+        
     return (
         <div className="app">
-            <button type="button" disabled={isAdding}
-                onClick={addDepartment}
-                className={'button add'}>
-                <FaPlusCircle style={{ marginRight: '0.5em' }} />Add
-            </button>
+            { isAdmin() &&
+                <button type="button" disabled={isAdding}
+                    onClick={addDepartment}
+                    className={'button add'}>
+                    <FaPlusCircle style={{ marginRight: '0.5em' }} />Add
+                </button>
+            }
             {isAdding && <h2>New Department</h2>}
             {!isAdding && <h2>Selected Department</h2>}
             <Formik
@@ -289,27 +296,31 @@ export default function DepartmentForm({ state, dispatch }) {
                             </div>
                         </div>
                         <p />
-                        <button type="submit" disabled={isUpdating || isSubmitting}>
-                            <FaSave style={{ marginRight: '0.5em' }} />{isSubmitting ? 'Submitting' : 'Submit'}
-                        </button>
-                        { !isAdding &&
+                        { isAdmin() &&
+                            <button type="submit" disabled={isUpdating || isSubmitting}>
+                                <FaSave style={{ marginRight: '0.5em' }} />{isSubmitting ? 'Submitting' : 'Submit'}
+                            </button>
+                        }
+                        { isAdmin() && !isAdding &&
                             <button type="reset" disabled={isUpdating || isSubmitting}
                                 className={'button reset'}>
                                 <FaUndo style={{ marginRight: '0.5em' }} />Reset
                             </button>
                         }
-                        { isAdding &&
+                        { isAdmin() && isAdding &&
                             <button type="button"
                                 onClick={cancelAdd}
                                 className={'button cancel'}>
                                 <MdCancel style={{ marginRight: '0.5em' }} />Cancel
                             </button>
                         }
-                        <button type="button" disabled={isDeleting || isAdding}
-                            onClick={deleteDepartment}
-                            className={'button delete'}>
-                            <FaTrash style={{ marginRight: '0.5em' }} />Delete
-                        </button>
+                        { isAdmin() &&
+                            <button type="button" disabled={isDeleting || isAdding}
+                                onClick={deleteDepartment}
+                                className={'button delete'}>
+                                <FaTrash style={{ marginRight: '0.5em' }} />Delete
+                            </button>
+                        }
                     </form>
                 )}
             </Formik>

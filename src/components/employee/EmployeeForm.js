@@ -37,6 +37,7 @@ const EmployeeSchema = Yup.object().shape({
 export default function EmployeeForm({ state, dispatch }) {
   const { employee, selectedEmployee, departments, isUpdating, isDeleting, isAdding, isAddSubmit, error } = state;
   const authContext = useContext(AuthContext);
+  const userRoles = authContext.parseJwt(authContext.getAccessToken()).realm_access.roles;
 
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [confirmResult, setConfirmResult] = useState(false);
@@ -60,9 +61,9 @@ export default function EmployeeForm({ state, dispatch }) {
       }).then(resp => {
         if (!resp.ok) {
           if (!resp.statusText || resp.statusText === '') {
-             errorText = 'HTTP Error';
+            errorText = 'HTTP Error';
           } else {
-             errorText = resp.statusText;
+            errorText = resp.statusText;
           }
           console.log("Response status: ", resp.status, errorText);
           throw new Error(resp.status + ' - ' + errorText);
@@ -99,9 +100,9 @@ export default function EmployeeForm({ state, dispatch }) {
         }).then(resp => {
           if (!resp.ok) {
             if (!resp.statusText || resp.statusText === '') {
-               errorText = 'HTTP Error';
+              errorText = 'HTTP Error';
             } else {
-               errorText = resp.statusText;
+              errorText = resp.statusText;
             }
             console.log("Response status: ", resp.status, errorText);
             throw new Error(resp.status + ' - ' + errorText);
@@ -142,9 +143,9 @@ export default function EmployeeForm({ state, dispatch }) {
         }).then(resp => {
           if (!resp.ok) {
             if (!resp.statusText || resp.statusText === '') {
-               errorText = 'HTTP Error';
+              errorText = 'HTTP Error';
             } else {
-               errorText = resp.statusText;
+              errorText = resp.statusText;
             }
             console.log("Response status: ", resp.status, errorText);
             throw new Error(resp.status + ' - ' + errorText);
@@ -182,9 +183,9 @@ export default function EmployeeForm({ state, dispatch }) {
         }).then(resp => {
           if (!resp.ok) {
             if (!resp.statusText || resp.statusText === '') {
-               errorText = 'HTTP Error';
+              errorText = 'HTTP Error';
             } else {
-               errorText = resp.statusText;
+              errorText = resp.statusText;
             }
             console.log("Response status: ", resp.status, errorText);
             throw new Error(resp.status + ' - ' + errorText);
@@ -198,12 +199,13 @@ export default function EmployeeForm({ state, dispatch }) {
             })
             setPopup({ open: true, severity: "success", text: "Employee added", duration: 3000 });
           })
-          .catch(error => {dispatch({
-            type: "EMPLOYEES_ERROR",
-            payload: error
-          })
-          setPopup({ open: true, severity: "error", text: "Error while adding", duration: 3000 });
-        });
+          .catch(error => {
+            dispatch({
+              type: "EMPLOYEES_ERROR",
+              payload: error
+            })
+            setPopup({ open: true, severity: "error", text: "Error while adding", duration: 3000 });
+          });
       }
     }
   }, [isAddSubmit, authContext, dispatch])
@@ -235,16 +237,22 @@ export default function EmployeeForm({ state, dispatch }) {
       payload: selectedEmployee
     });
     setPopup({ open: true, severity: "warning", text: "Operation canceled", duration: 3000 });
- 
+
   }
+
+  function isAdmin() {
+    return userRoles.includes("admin")
+}
 
   return (
     <div className="app">
-      <button type="button" disabled={isAdding}
-        onClick={addEmployee}
-        className={'button add'}>
-        <FaPlusCircle style={{ marginRight: '0.5em' }} />Add
+      { isAdmin() &&
+        <button type="button" disabled={isAdding}
+          onClick={addEmployee}
+          className={'button add'}>
+          <FaPlusCircle style={{ marginRight: '0.5em' }} />Add
       </button>
+      }
       {isAdding && <h2>New Employee</h2>}
       {!isAdding && <h2>Selected Employee</h2>}
       <Formik
@@ -342,6 +350,7 @@ export default function EmployeeForm({ state, dispatch }) {
               <select
                 type="deptId"
                 name="deptId"
+                disabled={!isAdmin}
                 onChange={handleChange}
                 onBlur={handleBlur}
                 value={values.deptId}
@@ -361,33 +370,36 @@ export default function EmployeeForm({ state, dispatch }) {
               </div>
             </div>
             <p />
-            <button type="submit" disabled={isUpdating || isSubmitting}>
-              <FaSave style={{ marginRight: '0.5em' }} />{isSubmitting ? 'Submitting' : 'Submit'}
-            </button>
-            { !isAdding &&
+            { isAdmin() &&
+              <button type="submit" disabled={isUpdating || isSubmitting}>
+                <FaSave style={{ marginRight: '0.5em' }} />{isSubmitting ? 'Submitting' : 'Submit'}
+              </button>
+            }
+            { isAdmin() && !isAdding &&
               <button type="reset" disabled={isUpdating || isSubmitting}
                 className={'button reset'}>
                 <FaUndo style={{ marginRight: '0.5em' }} />Reset
               </button>
             }
-            { isAdding &&
+            { isAdmin() && isAdding &&
               <button type="button"
                 onClick={cancelAdd}
                 className={'button cancel'}>
                 <MdCancel style={{ marginRight: '0.5em' }} />Cancel
               </button>
             }
-            <button type="button" disabled={isDeleting || isAdding}
-              onClick={deleteEmployee}
-              className={'button delete'}>
-              <FaTrash style={{ marginRight: '0.5em' }} />Delete
-            </button>
-
+            { isAdmin() &&
+              <button type="button" disabled={isDeleting || isAdding}
+                onClick={deleteEmployee}
+                className={'button delete'}>
+                <FaTrash style={{ marginRight: '0.5em' }} />Delete
+              </button>
+            }
           </form>
         )}
       </Formik>
       <Popup
-         settings={popup} close={setPopup} />
+        settings={popup} close={setPopup} />
       <ConfirmDelete
         title="Confirm Delete"
         text="Do you really want to delete this employee?"

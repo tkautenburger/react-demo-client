@@ -13,5 +13,7 @@ RUN npm run build
 FROM nginx:stable-alpine
 COPY --from=build /app/build /usr/share/nginx/html
 COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
-EXPOSE 8080
+COPY tls.key /etc/ssl/tls.key
+COPY tls.crt /etc/ssl/tls.crt
+EXPOSE 80 443
 CMD ["nginx", "-g", "daemon off;"]
