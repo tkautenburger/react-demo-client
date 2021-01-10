@@ -2,6 +2,8 @@ import React, {Component} from "react";
 import AuthService from "../services/authService";
 
 export const AuthContext = React.createContext({
+    startSessionQueryTimer: () => ({}),
+    querySessionStatus: () => ({}),
     signinRedirectCallback: () => ({}),
     getUserData: () => ({}),
     parseJwt: (token) => ({}),

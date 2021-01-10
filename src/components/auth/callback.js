@@ -6,6 +6,7 @@ export const Callback = () => (
     <AuthConsumer>
         {({ signinRedirectCallback }) => {
             signinRedirectCallback();
+            
             return (
                 <div className="app">
                     < p />

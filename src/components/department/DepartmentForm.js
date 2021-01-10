@@ -77,7 +77,7 @@ export default function DepartmentForm({ state, dispatch }) {
                 });
             }
         }
-    }, [isUpdating, authContext, dispatch])
+    }, [isUpdating, department, authContext, dispatch])
 
     // effect hook to DELETE a department entry
     useEffect(() => {
@@ -116,7 +116,7 @@ export default function DepartmentForm({ state, dispatch }) {
                 });
             }
         }
-    }, [isDeleting, authContext, dispatch])
+    }, [isDeleting, department.deptId, authContext, dispatch])
 
     // effect hook to POST a new department entry
     useEffect(() => {
@@ -158,7 +158,7 @@ export default function DepartmentForm({ state, dispatch }) {
                 });
             }
         }
-    }, [isAddSubmit, authContext, dispatch])
+    }, [isAddSubmit, department, authContext, dispatch])
 
     useEffect(() => {
         if (confirmResult) {
@@ -167,7 +167,7 @@ export default function DepartmentForm({ state, dispatch }) {
             });
             setConfirmResult(false);
         }
-    }, [confirmResult])
+    }, [confirmResult, dispatch])
 
     function addDepartment(e) {
         // this clears the fields in the form and

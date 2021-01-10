@@ -3,6 +3,7 @@ import { Route } from "react-router-dom";
 import { AuthConsumer } from "../providers/authProvider";
 import { FaSpinner } from "react-icons/fa"
 
+
 export const PrivateRoute = ({ component, ...rest }) => {
     const renderFn = (Component) => (props) => (
         <AuthConsumer>

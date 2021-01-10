@@ -1,10 +1,14 @@
 import { IDENTITY_CONFIG, METADATA_OIDC } from "../utils/authConst";
 import { UserManager, WebStorageStateStore, Log } from "oidc-client";
+import { v4 as uuidv4 } from 'uuid';
 
 export default class AuthService {
     UserManager;
+    uuid;
 
     constructor() {
+
+        this.uuid = uuidv4();
         this.UserManager = new UserManager({
             ...IDENTITY_CONFIG,
             userStore: new WebStorageStateStore({ store: window.sessionStorage }),
@@ -12,29 +16,49 @@ export default class AuthService {
                 ...METADATA_OIDC
             }
         });
-        // Logger
+        // Configure Logger
         Log.logger = console;
-        Log.level = Log.INFO;
+        Log.level = Log.DEBUG;
+
         this.UserManager.events.addUserLoaded((user) => {
             if (window.location.href.indexOf("signin-oidc") !== -1) {
                 this.navigateToScreen();
             }
         });
+
         this.UserManager.events.addSilentRenewError((e) => {
-            console.log("silent renew error", e.message);
+            Log.warn("silent renew error, log out user", e.message);
+            // logout if a silent renew error occurs
+            this.logout();
         });
 
         this.UserManager.events.addAccessTokenExpired(() => {
-            console.log("access token expired");
-            this.signinSilent();
+            // if silent renew is enabled then do it otherwhise logout
+            if (IDENTITY_CONFIG.automaticSilentRenew) {
+                Log.info("access token expired: trigger silent renew")
+                this.signinSilent();
+            } else {
+                Log.info("access token expired: trigger logout");
+                this.logout();
+            }
         });
 
         this.UserManager.events.addUserSignedOut(() => {
-            // this comes directly after login, probably because of the login_required warning
-            console.log("user signed out");
-            // this.logout();
+            // session has been terminated at the authentcation service
+            Log.info("user has been signed out");
+            this.logout();
         });
+
     }
+
+    startSessionQueryTimer = () => {
+        // user has been logged in after redirect to auth server, navigate to requested URL
+        if (IDENTITY_CONFIG.querySession && this.timerId === null) {
+            this.timerId = setInterval(this.querySessionStatus, IDENTITY_CONFIG.querySessionInterval);
+            Log.debug("session query started, id: ", this.timerId);
+            Log.debug("querying session interval: ", IDENTITY_CONFIG.querySessionInterval / 1000);
+        }
+    };
 
     signinRedirectCallback = () => {
         this.UserManager.signinRedirectCallback()
@@ -42,7 +66,7 @@ export default class AuthService {
                 // here we have the user object after successful login
             })
             .catch((err) => {
-                console.log('signinRedirectCallback error: ', err);
+                Log.warn('signinRedirectCallback error: ', err);
             });
     };
 
@@ -106,17 +130,17 @@ export default class AuthService {
     signinSilent = () => {
         this.UserManager.signinSilent()
             .then((user) => {
-                console.log("signed in", user);
+                Log.info("signed in", user);
             })
             .catch((err) => {
-                console.log(err);
+                Log.warn(err);
             });
     };
 
     signinSilentCallback = () => {
         this.UserManager.signinSilentCallback()
             .catch((err) => {
-                console.log(err);
+                Log.error(err);
             });
     };
 
@@ -129,6 +153,8 @@ export default class AuthService {
             id_token_hint: localStorage.getItem("id_token")
         });
         this.UserManager.clearStaleState();
+        // clear the leader uuid in session storage
+        localStorage.removeItem('session');
     };
 
     signoutRedirectCallback = () => {
@@ -137,5 +163,35 @@ export default class AuthService {
             window.location.replace("/");
         });
         this.UserManager.clearStaleState();
+    };
+
+    querySessionStatus = () => {
+        if (this.isAuthenticated() && IDENTITY_CONFIG.querySession === true) {
+            // get the session leader UUID from local storage
+            const sessionString = localStorage.getItem('session');
+            const session = sessionString ? JSON.parse(sessionString) : null;
+            // check if there is no session status at all or 
+            // if we are the leader
+            if (!session || session.uuid === this.uuid) {
+                // we are the leader, therefore do a real session status query
+                this.remoteQuery();
+                Log.debug("in query leader with UUID: ", this.uuid);
+            } else {
+                // we are not the leader, just do nothing
+                Log.debug("in query follower with UUID: ", this.uuid);
+            }
+        }
+    };
+
+    remoteQuery = () => {
+        this.UserManager.querySessionStatus()
+            .then((status) => {
+                const value = JSON.stringify({ 'uuid': this.uuid });
+                localStorage.setItem('session', value);
+                Log.debug("Query Session Status:", value);
+            }).catch((err) => {
+                Log.warn("Query Session Status error: ", err);
+                this.logout();
+            });
     };
 }

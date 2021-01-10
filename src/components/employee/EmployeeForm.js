@@ -81,7 +81,7 @@ export default function EmployeeForm({ state, dispatch }) {
           payload: error
         }));
     }
-  }, [authContext, dispatch]);
+  }, [authContext, employee, dispatch]);
 
   // effect hook to update a employee entry
   useEffect(() => {
@@ -125,7 +125,7 @@ export default function EmployeeForm({ state, dispatch }) {
           });
       }
     }
-  }, [isUpdating, authContext, dispatch])
+  }, [isUpdating, employee, authContext, dispatch])
 
   // effect hook to delete an employee entry
   useEffect(() => {
@@ -164,7 +164,7 @@ export default function EmployeeForm({ state, dispatch }) {
         });
       }
     }
-  }, [isDeleting, authContext, dispatch])
+  }, [isDeleting, employee.empId, authContext, dispatch])
 
   // effect hook to add a new employee entry
   useEffect(() => {
@@ -208,7 +208,7 @@ export default function EmployeeForm({ state, dispatch }) {
           });
       }
     }
-  }, [isAddSubmit, authContext, dispatch])
+  }, [isAddSubmit, employee, authContext, dispatch])
 
   useEffect(() => {
     if (confirmResult) {
@@ -217,7 +217,7 @@ export default function EmployeeForm({ state, dispatch }) {
       });
       setConfirmResult(false);
     }
-  }, [confirmResult])
+  }, [confirmResult, dispatch])
 
   function deleteEmployee(e) {
     setConfirmOpen(true);

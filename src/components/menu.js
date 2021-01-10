@@ -1,10 +1,17 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import { FaUserAlt, FaBuilding, FaUserCircle } from "react-icons/fa"
 import { FiLogOut } from "react-icons/fi"
-import { AuthConsumer } from "../providers/authProvider"
+import { AuthConsumer, AuthContext } from "../providers/authProvider"
+import { useInterval } from "../utils/useInterval";
 
 export const Menu = () => {
+  const authContext = useContext(AuthContext);
+
+  useInterval(() => {
+    authContext.querySessionStatus()
+  }, process.env.REACT_APP_QUERY_SESSION_INTERVAL * 1000);
+
   return (
     <div >
       <header>
@@ -55,8 +62,8 @@ export const Menu = () => {
                 </li>
               )}
             </AuthConsumer>
-            
-         </ul>
+
+          </ul>
         </nav>
       </header>
     </div>
