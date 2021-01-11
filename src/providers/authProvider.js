@@ -13,8 +13,7 @@ export const AuthContext = React.createContext({
     signoutRedirectCallback: () => ({}),
     isAuthenticated: () => ({}),
     signinRedirect: () => ({}),
-    signinSilentCallback: () => ({}),
-    createSigninRequest: () => ({})
+    signinSilentCallback: () => ({})
 });
 
 export const AuthConsumer = AuthContext.Consumer;

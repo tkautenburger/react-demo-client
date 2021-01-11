@@ -27,7 +27,7 @@ export default class AuthService {
         });
 
         this.UserManager.events.addSilentRenewError((e) => {
-            Log.warn("silent renew error, log out user", e.message);
+            Log.warn("authService: silent renew error, log out user", e.message);
             // logout if a silent renew error occurs
             this.logout();
         });
@@ -35,17 +35,17 @@ export default class AuthService {
         this.UserManager.events.addAccessTokenExpired(() => {
             // if silent renew is enabled then do it otherwhise logout
             if (IDENTITY_CONFIG.automaticSilentRenew) {
-                Log.info("access token expired: trigger silent renew")
+                Log.info("authService: access token expired: trigger silent renew")
                 this.signinSilent();
             } else {
-                Log.info("access token expired: trigger logout");
+                Log.info("authService: access token expired: trigger logout");
                 this.logout();
             }
         });
 
         this.UserManager.events.addUserSignedOut(() => {
             // session has been terminated at the authentcation service
-            Log.info("user has been signed out");
+            Log.info("authService: user has been signed out");
             this.logout();
         });
 
@@ -55,8 +55,8 @@ export default class AuthService {
         // user has been logged in after redirect to auth server, navigate to requested URL
         if (IDENTITY_CONFIG.querySession && this.timerId === null) {
             this.timerId = setInterval(this.querySessionStatus, IDENTITY_CONFIG.querySessionInterval);
-            Log.debug("session query started, id: ", this.timerId);
-            Log.debug("querying session interval: ", IDENTITY_CONFIG.querySessionInterval / 1000);
+            Log.debug("authService: session query started, id: ", this.timerId);
+            Log.debug("authService: querying session interval: ", IDENTITY_CONFIG.querySessionInterval / 1000);
         }
     };
 
@@ -66,7 +66,7 @@ export default class AuthService {
                 // here we have the user object after successful login
             })
             .catch((err) => {
-                Log.warn('signinRedirectCallback error: ', err);
+                Log.warn('authService: signinRedirectCallback error: ', err);
             });
     };
 
@@ -130,7 +130,7 @@ export default class AuthService {
     signinSilent = () => {
         this.UserManager.signinSilent()
             .then((user) => {
-                Log.info("signed in", user);
+                Log.info("authService: signed in silent", user);
             })
             .catch((err) => {
                 Log.warn(err);
@@ -142,10 +142,6 @@ export default class AuthService {
             .catch((err) => {
                 Log.error(err);
             });
-    };
-
-    createSigninRequest = () => {
-        return this.UserManager.createSigninRequest();
     };
 
     logout = () => {
@@ -175,10 +171,10 @@ export default class AuthService {
             if (!session || session.uuid === this.uuid) {
                 // we are the leader, therefore do a real session status query
                 this.remoteQuery();
-                Log.debug("in query leader with UUID: ", this.uuid);
+                Log.debug("authService: in query LEADER with UUID: ", this.uuid);
             } else {
                 // we are not the leader, just do nothing
-                Log.debug("in query follower with UUID: ", this.uuid);
+                Log.debug("authService: in query FOLLOWER with UUID: ", this.uuid);
             }
         }
     };
@@ -188,9 +184,9 @@ export default class AuthService {
             .then((status) => {
                 const value = JSON.stringify({ 'uuid': this.uuid });
                 localStorage.setItem('session', value);
-                Log.debug("Query Session Status:", status);
+                Log.debug("authService: received query Session Status:", status);
             }).catch((err) => {
-                Log.warn("Query Session Status error: ", err);
+                Log.warn("authService: query Session Status error: ", err);
                 this.logout();
             });
     };
