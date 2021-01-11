@@ -8,9 +8,11 @@ import { useInterval } from "../utils/useInterval";
 export const Menu = () => {
   const authContext = useContext(AuthContext);
 
+  const sessionInterval = process.env.REACT_APP_QUERY_SESSION_INTERVAL ? process.env.REACT_APP_QUERY_SESSION_INTERVAL * 1000 : 10000
+  // this sets the intervall for active query session that runs as long as the Menu component exists
   useInterval(() => {
     authContext.querySessionStatus()
-  }, process.env.REACT_APP_QUERY_SESSION_INTERVAL * 1000);
+  }, sessionInterval);
 
   return (
     <div >

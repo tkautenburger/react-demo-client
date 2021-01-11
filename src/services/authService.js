@@ -188,7 +188,7 @@ export default class AuthService {
             .then((status) => {
                 const value = JSON.stringify({ 'uuid': this.uuid });
                 localStorage.setItem('session', value);
-                Log.debug("Query Session Status:", value);
+                Log.debug("Query Session Status:", status);
             }).catch((err) => {
                 Log.warn("Query Session Status error: ", err);
                 this.logout();
