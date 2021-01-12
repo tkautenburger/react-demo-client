@@ -1,5 +1,9 @@
 # React demo client for microservice application platform
 
+Project needs dummy backend with a JSON server. Use start-json-server.sh to start the backend service.
+Application awaits OIDC/OAuth2 server (Keycloak) at URL in .env file. If you use another OAuth2
+Server, .env parameter and METADATA in `src/utils/authConst.js` must be changed.
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
