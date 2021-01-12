@@ -1,8 +1,9 @@
-import React, { useContext } from "react";
+import React, { useEffect, useContext } from "react";
 import { Link } from "react-router-dom";
 import { FaUserAlt, FaBuilding, FaUserCircle } from "react-icons/fa"
 import { FiLogOut } from "react-icons/fi"
 import { AuthConsumer, AuthContext } from "../providers/authProvider"
+import { IDENTITY_CONFIG } from "../utils/authConst";
 import { useInterval } from "../utils/useInterval";
 
 export const Menu = () => {
@@ -13,6 +14,16 @@ export const Menu = () => {
   useInterval(() => {
     authContext.querySessionStatus()
   }, sessionInterval);
+
+  // Clear session uuid and allow new leader election
+  window.addEventListener("beforeunload", (e) => {
+    if (authContext.isAuthenticated() && IDENTITY_CONFIG.querySession === true) {
+      e.preventDefault();
+      console.log("authService: clear session uuid, restart leader election");
+      return localStorage.removeItem('session');
+    }
+    return
+  });
 
   return (
     <div >
