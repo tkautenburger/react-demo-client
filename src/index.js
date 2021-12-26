@@ -5,7 +5,7 @@ import App from './App';
 import './styles.css'
 
 
-ReactDOM.render(
+ReactDOM.hydrate(
   <App />,
   document.getElementById('root')
 );

@@ -14,6 +14,7 @@ import { ConfirmDelete } from "../dialog/ConfirmDelete"
 import { Popup } from "../popup/Snackbar.js"
 
 import * as Yup from 'yup'
+import { IDENTITY_CONFIG } from '../../utils/authConst'
 
 // Validation Schema of form components
 const DepartmentSchema = Yup.object().shape({
@@ -30,7 +31,7 @@ const DepartmentSchema = Yup.object().shape({
 export default function DepartmentForm({ state, dispatch }) {
     const { department, selectedDepartment, isUpdating, isDeleting, isAdding, isAddSubmit, error } = state;
     const authContext = useContext(AuthContext);
-    const userRoles = authContext.parseJwt(authContext.getAccessToken()).realm_access.roles;
+    const userRoles = authContext.parseJwt(authContext.getAccessToken()).resource_access[IDENTITY_CONFIG.client_id].roles;
 
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [confirmResult, setConfirmResult] = useState(false);
@@ -191,7 +192,7 @@ export default function DepartmentForm({ state, dispatch }) {
     }
 
     function isAdmin() {
-        return userRoles.includes("admin")
+        return userRoles.includes(process.env.REACT_APP_ROLE_ADMIN)
     }
         
     return (

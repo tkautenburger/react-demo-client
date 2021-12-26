@@ -11,6 +11,7 @@ import { EmployeePage } from "../components/employee/EmployeePage";
 import { DepartmentPage } from "../components/department/DepartmentPage";
 import { ProfilePage } from "../components/profile/ProfilePage";
 import { Menu } from "../components/menu";
+import { IDENTITY_CONFIG } from "../utils/authConst";
 
 // import {PublicPage} from "../components/publicPage"
 
@@ -25,6 +26,14 @@ export const Routes = (
     <PrivateRoute path="/departments" component={DepartmentPage} />
     <PrivateRoute path="/employees" component={EmployeePage} />
     <PrivateRoute path="/profile" component={ProfilePage} />
+
+    <Route path='/account' component={() => {
+      const url = IDENTITY_CONFIG.authority + '/account?referrer=' + 
+                  IDENTITY_CONFIG.client_id + '&referrer_uri=' + 
+                  encodeURIComponent(IDENTITY_CONFIG.referrerURI);
+      window.location.href = url;
+      return null;
+    }} />
 
     <Route path="/" component={Menu} />
 

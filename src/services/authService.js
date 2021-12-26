@@ -1,4 +1,4 @@
-import { IDENTITY_CONFIG, METADATA_OIDC } from "../utils/authConst";
+import { IDENTITY_CONFIG, METADATA_OIDC, CUSTOM_CONFIG } from "../utils/authConst";
 import { UserManager, WebStorageStateStore, Log } from "oidc-client";
 import { v4 as uuidv4 } from 'uuid';
 
@@ -14,7 +14,8 @@ export default class AuthService {
             userStore: new WebStorageStateStore({ store: window.sessionStorage }),
             metadata: {
                 ...METADATA_OIDC
-            }
+            },
+            accessTokenExpiringNotificationTime: CUSTOM_CONFIG.accessTokenExpiringNotificationTime
         });
         // Configure Logger
         Log.logger = console;

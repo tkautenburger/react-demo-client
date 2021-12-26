@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
-import { FaUserAlt, FaBuilding, FaUserCircle } from "react-icons/fa"
+import { FaUserAlt, FaBuilding, FaInfoCircle, FaUserCircle } from "react-icons/fa"
 import { FiLogOut } from "react-icons/fi"
 import { AuthConsumer, AuthContext } from "../providers/authProvider"
 import { IDENTITY_CONFIG } from "../utils/authConst";
@@ -57,8 +57,20 @@ export const Menu = () => {
                 isAuthenticated() &&
                 <li>
                   <Link to="/profile" className="btn btn-header">
-                    <FaUserCircle />
+                    <FaInfoCircle />
                     <span>Profile</span>
+                  </Link>
+                </li>
+              )}
+            </AuthConsumer>
+
+            <AuthConsumer>
+              {({ isAuthenticated }) => (
+                isAuthenticated() &&
+                <li>
+                  <Link to="/account" className="btn btn-header">
+                    <FaUserCircle />
+                    <span>Account</span>
                   </Link>
                 </li>
               )}

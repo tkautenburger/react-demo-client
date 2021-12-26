@@ -1,11 +1,6 @@
 {
   "departments": [
     {
-      "deptId": 4711,
-      "name": "HR",
-      "description": "Human Resources"
-    },
-    {
       "deptId": 4712,
       "name": "Sales",
       "description": "Sales Department"
@@ -23,7 +18,17 @@
     {
       "deptId": 4714,
       "name": "Marketing",
-      "description": "Online Marketing Department"
+      "description": "Marketing Department"
+    },
+    {
+      "deptId": 4716,
+      "name": "Service",
+      "description": "Customer Service"
+    },
+    {
+      "deptId": 4717,
+      "name": "BD EMEA",
+      "description": "Business Development EMEA"
     }
   ],
   "employees": [
@@ -50,6 +55,12 @@
       "lastname": "Smith",
       "firstname": "Jane",
       "deptId": "4713"
+    },
+    {
+      "empId": 106,
+      "lastname": "Marte",
+      "firstname": "Olson",
+      "deptId": 4715
     }
   ]
 }
